@@ -35,7 +35,7 @@ const fetchGameById = async (id) => {
         date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
       }
     } else {
-      console.warn('Aucun jeu trouvé avec cet ID')
+      router.replace({ name: 'not-found' }); //Redirige vers la page 404 si aucun ID trouvé
     }
   } catch (error) {
     console.error('Erreur lors de la récupération du jeu :', error)

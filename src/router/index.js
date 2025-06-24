@@ -9,6 +9,7 @@ import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
 import GameDetailPage from '../views/GameDetail.vue';
+import NotFound from '../views/Page404.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,6 +48,11 @@ const router = createRouter({
         path: '/game/:id',
         name: 'gameDetail',
         component: GameDetailPage
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
     }
     // Ajoutez d'autres routes ici si nécessaire
   ],
