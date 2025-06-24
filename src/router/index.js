@@ -8,6 +8,7 @@ import Precommandes from '../views/Precommandes.vue'
 import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
+import GameDetailPage from '../views/GameDetail.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,11 @@ const router = createRouter({
         name: 'connexion', // Ajout d'un nom pour la route de connexion
         component: Connexion 
     },
+    {
+        path: '/game/:id',
+        name: 'gameDetail',
+        component: GameDetailPage
+    }
     // Ajoutez d'autres routes ici si nécessaire
   ],
   // Cette fonction permet de styliser le lien actif dans la navbar
