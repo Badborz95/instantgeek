@@ -31,14 +31,17 @@ const fetchAllGames = async () => {
 
     //Obtention de la date d'aujourd'hui
     const today = new Date();
-    // Mettre l'heure à 00:00:00.000 pour comparer avec le début de la journée.
     today.setHours(0, 0, 0, 0);
+
+    const sixMonthAgo = new Date(today);
+    sixMonthAgo.setDate(today.getDate() - 180);
 
     // Créer une requête pour récupérer les jeux dont la date de sortie est égale ou postérieure à aujourd'hui.
     //    - where('dateSortie', '>=', today) : Filtre par date de sortie future ou égale à aujourd'hui
     //    - orderBy('dateSortie') : Trie les résultats par date (nécessaire avec le filtre de plage)
     const gamesQuery = query(
         gamesRef,
+        where('dateSortie', '>=', sixMonthAgo),
         where('dateSortie', '<=', today),
         orderBy('dateSortie')
     );

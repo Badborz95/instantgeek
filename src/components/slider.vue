@@ -58,13 +58,6 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { collection, getDocs, query, where } from 'firebase/firestore'; 
-import { db } from '../firebase/index.js'; 
-
-const games = ref([]);
-
-// Liste des IDs des jeux à afficher
-const selectedIds = ['tEZ8WKToNXRdUw30WBpN', 'ouRWQoFisMSRMbu5RncX', 'HT3qJHVa9pXQJZSXRkQR', 'HuvvEF5GQmSZ7ylXW1zW', 'ZuL3BlFzp83IyXuTQ4DF'];
 
 //Importation des images
 const imagesPrevu = ref([
@@ -97,11 +90,11 @@ const imageHero = [
 
 // Informations sur les jeux
 const gameInfo = ref([
-  { name: 'Grand Thief Auto VI', description: 'lorem ipsum', price: '59.99€', },
-  { name: 'Metaphor: ReFantazio', description: 'lorem ipsum', price: '49.99€', },
-  { name: 'Elden Ring Nightrein', description: 'lorem ipsum', price: '39.99€', },
-  { name: 'The Last of Us Part II REMASTERED', description: 'lorem ipsum', price: '29.99€', },
-  { name: 'Clair Obscur : Expédition 33', description: 'lorem ipsum', price: '19.99€', }
+  { name: 'Grand Thief Auto VI', description: 'lorem ipsum', price: '99.99€', },
+  { name: 'Metaphor: ReFantazio', description: 'lorem ipsum', price: '39.99€', },
+  { name: 'Elden Ring Nightrein', description: 'lorem ipsum', price: '31.52€', },
+  { name: 'The Last of Us Part II REMASTERED', description: 'lorem ipsum', price: '35.43€', },
+  { name: 'Clair Obscur : Expédition 33', description: 'lorem ipsum', price: '29.99€', }
 ]);
 
 const currentIndex = ref(0);
