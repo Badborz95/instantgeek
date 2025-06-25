@@ -120,6 +120,7 @@ a {
   gap: 20px;
   grid-template-rows: min-content;
   border-radius: 5%;
+  box-shadow: #061d20 5px 10px 10px 0px;
 }
 
 
