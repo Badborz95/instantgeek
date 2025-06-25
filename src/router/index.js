@@ -8,7 +8,7 @@ import Precommandes from '../views/Precommandes.vue'
 import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
-import GameDetailPage from '../views/GameDetail.vue';
+import GameDetail from '../views/GameDetailPage.vue';
 import NotFound from '../views/Page404.vue';
 
 const router = createRouter({
@@ -46,8 +46,8 @@ const router = createRouter({
     },
     {
         path: '/game/:id',
-        name: 'gameDetail',
-        component: GameDetailPage
+        name: 'gameDetailPage',
+        component: GameDetail
     },
     {
         path: '/:pathMatch(.*)*',

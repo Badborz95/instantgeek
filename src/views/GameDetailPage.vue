@@ -1,7 +1,7 @@
 <template>
   <Navbar />
   <div>
-    <GameDetailPage />
+    <GameDetail />
   </div>
   <Footer />
 </template>
@@ -9,6 +9,6 @@
 
 <script setup>
 import Navbar from '../components/Navbar.vue';
-import GameDetailPage from '../components/GameDetailPage.vue';
+import GameDetail from '../components/GameDetail.vue';
 import Footer from '../components/Footer.vue';
 </script>
