@@ -13,13 +13,19 @@
     </div>
     <div class="game-details">
       <div class="infos">
-        <div class="paltform"></div>
-        <div class="stock"></div>
+        <div class="infos1">
+          <div class="paltform">
+            <h3>Plateforme</h3>
+          </div>
+          <div class="stock">
+            <h3>En stock</h3>
+          </div>
+        </div>
         <div class="price"></div>
       </div>
       <div class="buttons">
-        <div class="favorite"></div>
-        <div class="cart"></div>
+        <button class="favorite">coeur</button>
+        <button class="cart">AJouter au panier</button>
       </div>
       <div class="description"></div>
     </div>
@@ -125,5 +131,28 @@ watch(() => route.params.id, (newId) => {
 .game-details {
   background-color: var(--background-two);
   height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.infos {
+  width: 92%;
+  height: 200px;
+  background-color: var(--interactive-comp-three);
+  border-radius: 1em;
+  margin-top: 20px;
+
+}
+
+.infos1 {
+  display: flex;
+  justify-content: space-evenly;
+  background-color: var(--border-separator-two);
+  width: 90%;
+  justify-self: center;
+  border-radius: 1em;
+  padding: 5px;
+  margin-top: 10px;
 }
 </style>
