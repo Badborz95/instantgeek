@@ -21,17 +21,19 @@
 <script setup>
 
 import { ref, onMounted } from 'vue';
-import { collection, getDocs, query, where } from 'firebase/firestore'; 
+import { collection, getDocs, query, where, limit } from 'firebase/firestore'; 
 import { db } from '../firebase/index.js'; 
 
 const games = ref([]);
 
-// Liste des IDs des jeux à afficher
-const selectedIds = ['kn9pH1dkwMBBF3YOvmvN', 'sTIYDzvGIubJuR7DOIaD', 'NUSTlf7nbt76DKvcEFmv']; // Remplace par tes vrais IDs
 
 const fetchAllGames = async () => {
   const gamesRef = collection(db, 'games');
-  const gamesQuery = query(gamesRef, where('__name__', 'in', selectedIds));
+  const gamesQuery = query(
+    gamesRef, 
+    where('featured', '==', true), 
+    limit(3)
+  );
 
   try {
     const querySnapshot = await getDocs(gamesQuery);
