@@ -5,7 +5,7 @@
       <ul class="media-scroller snaps-inline" id='precoIn'>
         <li v-for="game in games" :key="game.id">
           <div class="game-card">
-            <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+            <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
             <div class="game-text">
               <h3 class="titre">{{ game.titre }}</h3>
               <h3 class="prix">{{ game.price }}</h3>
