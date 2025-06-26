@@ -76,7 +76,7 @@
             <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
               <i class="bi bi-search"></i>
             </button>
-
+          </form>
           <transition name="fade">
             <button v-if="!isSearchActive" key="search-icon" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
               <i class="bi bi-search navbar-icon"></i>
@@ -178,7 +178,6 @@ const isSearchActive = ref(false);
 const searchTerm = ref('');
 const searchInputRef = ref(null);
 const searchFormRef = ref(null);
-
 const isDarkMode = ref(true); 
 
 const toggleSearchInput = () => {
