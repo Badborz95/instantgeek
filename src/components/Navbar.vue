@@ -103,7 +103,6 @@
                 <li class="d-lg-none"><router-link class="dropdown-item" to="/precommandes">Précommandes</router-link></li>
                 <li class="d-lg-none"><router-link class="dropdown-item" to="/prochaines-sorties">Prochaines sorties</router-link></li>
                 <li class="d-lg-none" v-if="!authStore.isLoggedIn"><hr class="dropdown-divider"></li>
-                <li><router-link class="dropdown-item" to="/support">Support 24/7</router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/mes-achats">Mes achats</router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span v-if="authStore.userWishlistCount !== null" class="badge bg-danger rounded-pill">{{ authStore.userWishlistCount }}</span><span v-else class="badge bg-danger rounded-pill">0</span></router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
@@ -136,7 +135,6 @@ import { db } from '../firebase';
 
 const route = useRoute();
 const authStore = useAuthStore(); 
-const isDarkMode = ref(true); 
 const isProfileDropdownOpen = ref(false); 
 let profileDropdown = null; 
 let unsubscribeWishlist = null; 
@@ -144,6 +142,42 @@ const isSearchActive = ref(false);
 const searchTerm = ref('');
 const searchInputRef = ref(null);
 const searchFormRef = ref(null);
+// --- LOGIQUE DU THÈME MISE À JOUR ---
+
+// 1. Initialisez la variable sans valeur par défaut fixe.
+const isDarkMode = ref(false); 
+
+// 2. Mettez à jour la fonction de bascule
+const toggleDarkMode = () => {
+  // Inverse l'état local
+  isDarkMode.value = !isDarkMode.value;
+  
+  // Applique la classe au body
+  if (isDarkMode.value) {
+    document.body.classList.add('dark-mode');
+  } else {
+    document.body.classList.remove('dark-mode');
+  }
+  
+  // Sauvegarde le choix dans le localStorage pour la persistance
+  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
+};
+
+
+// 3. Mettez à jour le onMounted pour synchroniser l'état du BOUTON
+onMounted(() => {
+  // Synchronise l'état du bouton avec ce qui est dans le localStorage
+  const savedTheme = localStorage.getItem('theme');
+  isDarkMode.value = savedTheme === 'dark';
+
+  // Le reste de votre logique onMounted
+  const profileDropdownElement = document.getElementById('navbarDropdownProfile');
+  if (profileDropdownElement) {
+    profileDropdown = new Dropdown(profileDropdownElement);
+    profileDropdownElement.addEventListener('show.bs.dropdown', () => isProfileDropdownOpen.value = true);
+    profileDropdownElement.addEventListener('hide.bs.dropdown', () => isProfileDropdownOpen.value = false);
+  }
+});
 const toggleSearchInput = () => {
   isSearchActive.value = !isSearchActive.value;
   if (isSearchActive.value) {
@@ -204,10 +238,6 @@ const toggleProfileDropdown = () => {
     isProfileDropdownOpen.value ? profileDropdown.hide() : profileDropdown.show();
   }
   if (isSearchActiveMobile.value) closeSearchInputMobile();
-};
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value;
-  document.body.classList.toggle('dark-mode', isDarkMode.value);
 };
 onMounted(() => {
   const profileDropdownElement = document.getElementById('navbarDropdownProfile');

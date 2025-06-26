@@ -70,35 +70,30 @@ const router = useRouter();
 </script>
 
 <style scoped>
-/* NOTE: Ces couleurs sont basées sur votre maquette.
-   Remplacez-les par vos variables CSS de thème (ex: var(--background-two)) pour la cohérence. */
-
+/* Le conteneur principal hérite de la couleur de fond via la balise <main> ou <body> */
+/* et de la couleur de texte par défaut. */
 .panier-container {
-  color: #E7FFFC;
-  /* Couleur de texte claire */
+  color: var(--text-one);
 }
-
-/* --- Supprimez tous les styles liés à .progress-stepper, .step, .step-circle, .step-label, .step-line ici --- */
-/* Conservez tous les autres styles de votre page panier, comme ci-dessous */
 
 /* --- Liste des articles --- */
 .cart-items-list {
-  background-color: #1A3E40;
+  background-color: var(--background-two); /* Fond légèrement différent du fond de page */
   border-radius: 15px;
   padding: 1.5rem;
   max-height: 550px;
   overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-separator-one);
 }
 
 .cart-item {
   display: flex;
   align-items: center;
-  background-color: #1F4A4C;
+  background-color: var(--interactive-comp-one); /* Un fond de carte interactif */
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   gap: 1rem;
 }
 
@@ -122,19 +117,20 @@ const router = useRouter();
   font-weight: bold;
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
+  color: var(--text-two); /* Texte plus contrasté pour les titres */
 }
 
 .item-price-unit {
   margin: 0;
   font-size: 0.9rem;
-  color: #BEEDFF;
+  color: var(--text-one);
   opacity: 0.8;
 }
 
 .item-quantity-controls {
   display: flex;
   align-items: center;
-  background-color: #1A3E40;
+  background-color: var(--background-two);
   border-radius: 5px;
   padding: 0.25rem 0.5rem;
   flex-shrink: 0;
@@ -143,7 +139,7 @@ const router = useRouter();
 .btn-quantity {
   background: none;
   border: none;
-  color: #E7FFFC;
+  color: var(--text-one);
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0 0.5rem;
@@ -151,19 +147,19 @@ const router = useRouter();
 }
 
 .btn-quantity:hover {
-  color: #00dffc;
+  color: var(--solid-one); /* Couleur d'accentuation au survol */
 }
 
 .quantity-display {
   padding: 0 0.75rem;
   font-weight: bold;
-  color: #E7FFFC;
+  color: var(--text-two);
 }
 
 .item-subtotal {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #BEEDFF;
+  color: var(--text-two);
   text-align: right;
   min-width: 80px;
   flex-shrink: 0;
@@ -172,7 +168,7 @@ const router = useRouter();
 .btn-delete {
   background: none;
   border: none;
-  color: #E7FFFC;
+  color: var(--text-one);
   font-size: 1.7rem;
   cursor: pointer;
   transition: color 0.3s;
@@ -180,39 +176,42 @@ const router = useRouter();
   flex-shrink: 0;
 }
 
+/* NOTE : Il est recommandé de créer une variable --danger-color pour cette couleur */
 .btn-delete:hover {
-  color: #ff6b6b;
+  color: #ff6b6b; 
 }
 
 /* --- Résumé de la commande --- */
 .order-summary {
-  background-color: #1F4A4C;
+  background-color: var(--background-two);
   border-radius: 15px;
   padding: 2rem;
   text-align: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-separator-one);
+  position: sticky;
+  top: 2rem;
 }
 
 .summary-title {
   font-weight: bold;
   font-size: 1.75rem;
   margin-bottom: 1.5rem;
-  color: #E7FFFC;
+  color: var(--text-two);
 }
 
 .summary-details {
   font-size: 1.1rem;
-  color: #BEEDFF;
+  color: var(--text-one);
 }
 
-.summary-details hr {
-  border-top: 1px solid rgba(190, 237, 255, 0.3);
-  margin: 1rem 0;
+.summary-details .text-muted {
+    color: var(--text-one) !important;
+    opacity: 0.7;
 }
 
 .summary-total-final {
   font-size: 1.4rem;
-  color: #00B8D4;
+  color: var(--solid-one);
 }
 
 .summary-total-final .display-6 {
@@ -220,8 +219,8 @@ const router = useRouter();
 }
 
 .btn-validate {
-  background-color: #00B8D4;
-  color: #1A3E40;
+  background-color: var(--solid-one);
+  color: var(--background-one); /* Texte contrasté avec le fond du bouton */
   font-weight: bold;
   border: none;
   border-radius: 10px;
@@ -229,17 +228,18 @@ const router = useRouter();
   width: 100%;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
-  box-shadow: 0 4px 10px rgba(0, 184, 212, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-size: 1.1rem;
 }
 
 .btn-validate:hover {
-  background-color: #00dffc;
+  background-color: var(--solid-two);
   transform: translateY(-2px);
 }
 
 .btn-validate:disabled {
-  background-color: #8A9A9C;
+  background-color: var(--border-separator-three);
+  color: var(--text-one);
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
@@ -247,51 +247,67 @@ const router = useRouter();
 
 .btn-continue-shopping {
   background-color: transparent;
-  color: #BEEDFF;
-  border: 1px solid #BEEDFF;
+  color: var(--solid-one);
+  border: 1px solid var(--solid-one);
   border-radius: 10px;
   padding: 0.8rem 1.5rem;
   width: 100%;
   transition: background-color 0.3s, color 0.3s;
   font-weight: bold;
+  text-decoration: none; /* Pour le router-link */
+  display: inline-block; /* Pour que le padding/width s'applique bien */
 }
 
 .btn-continue-shopping:hover {
-  background-color: #BEEDFF;
-  color: #1A3E40;
+  background-color: var(--solid-one);
+  color: var(--background-one);
 }
 
+/* --- Panier vide --- */
 .empty-cart-message {
   text-align: center;
   padding: 4rem;
   font-size: 1.2rem;
-  color: #8A9A9C;
+  color: var(--text-one);
+  opacity: 0.7;
 }
 
 .empty-cart-icon {
   font-size: 4rem;
-  color: #1F4A4C;
+  color: var(--interactive-comp-two);
   margin-bottom: 1rem;
 }
 
 .empty-cart-message h3 {
-  color: #E7FFFC;
+  color: var(--text-two);
   font-size: 1.8rem;
   margin-bottom: 0.5rem;
 }
 
-/* Style de la barre de défilement */
+/* Le bouton primaire dans le message de panier vide */
+.empty-cart-message .btn-primary {
+    background-color: var(--solid-one);
+    border-color: var(--solid-one);
+    color: var(--background-one);
+}
+.empty-cart-message .btn-primary:hover {
+    background-color: var(--solid-two);
+    border-color: var(--solid-two);
+}
+
+
+/* --- Style de la barre de défilement --- */
 .cart-items-list::-webkit-scrollbar {
   width: 8px;
 }
 
 .cart-items-list::-webkit-scrollbar-track {
-  background: #1A3E40;
+  background: var(--background-two);
   border-radius: 10px;
 }
 
 .cart-items-list::-webkit-scrollbar-thumb {
-  background-color: #8A9A9C;
+  background-color: var(--border-separator-three);
   border-radius: 10px;
 }
 
