@@ -3,7 +3,7 @@
 
 
     <div v-if="isMobile">
-      <!--Version mobile-->
+      <!--VERSION MOBILE-->
       <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
         <h1 class="title">{{ game.titre }}</h1>
         <div class="game-info">
@@ -46,12 +46,13 @@
           </button>
         </div>
         <div class="description">
-          <h3>description</h3>
+          <h3>Description</h3>
+          {{ game.description }}
         </div>
       </div>
     </div>
     <div v-else>
-      <!--Version desktop-->
+      <!--VERSION DESKTOP-->
       <div class="background" :style="{ backgroundImage: `url(${game.hero})` }">
         <div>
           <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
@@ -67,8 +68,7 @@
               </ul>
             </h3>
             <p class="synopsis">
-              <!---<TruncatedText :text="game.titre" :maxLength="80" />-->
-              {{ game.description }}
+              <TruncatedText :text="game.description" :maxLength="450" />
             </p>
           </div>
           <div class="game-details">
@@ -96,13 +96,15 @@
                 </svg>
               </button>
             </div>
-            <div class="description">
-              <h3>description</h3>
-            </div>
+
           </div>
+
         </div>
       </div>
-
+      <div class="description">
+        <h3>Description</h3>
+        {{ game.description }}
+      </div>
     </div>
     <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
@@ -198,6 +200,8 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: space-between;
 }
+
+
 
 .title {
   align-self: center;
@@ -315,23 +319,54 @@ onUnmounted(() => {
 }
 
 .description {
-  margin-top: 50px;
-}
-
-@media (min-width: 768px) {
-  .background {
-    height: 1080px;
-    padding: 8% 15%;
+    height: auto;
+    background-color: var(--background-two);
+    padding: 20px 50px;
   }
 
+  .description h3{
+    margin-bottom: 30px;
+  }
+
+/*VERSION DESKTOP*/
+@media (min-width: 768px) {
   .background {
+    height: 900px;
+    padding: 8% 15%;
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
   }
 
+
+  .background::before {
+    /*"détache" l'image de fondd des autres éléments en en créant une copie afin de la modifier*/
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(6px);
+    z-index: 0;
+    transform: scale(1.1);
+    /* Évite les bords visibles du blur */
+  }
+
+  .background {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .background>* {
+    position: relative;
+    z-index: 1;
+    /*¨Place les éléments à l'intérieur devant le fond*/
+  }
+
   .background img {
-    width: 80%;
+    width: 97%;
+    border-radius: 20px;
   }
 
   .desktop {
@@ -339,7 +374,8 @@ onUnmounted(() => {
   }
 
   .title {
-    justify-self: flex-start;
+    justify-self: flex-end;
+    margin-right: 4%;
   }
 
   .tags {
@@ -348,6 +384,10 @@ onUnmounted(() => {
 
   .synopsis {
     width: 70%;
+  }
+
+  .game-info {
+    padding-right: 4%;
   }
 
   .game-details {
