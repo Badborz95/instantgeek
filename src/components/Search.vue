@@ -1,12 +1,11 @@
 <template>
     <div class="container-fluid py-2 preco">
         <div>
-            <h1 class="mt-3">Précommandes</h1>
-            <p class="mb-5">Réservez dès maintenant les articles à venir.</p>
+            <h1 class="mt-3 mb-5">Recherche</h1>
             <ul id='precoIn'>
                 <li v-for="game in games" :key="game.id">
                     <div class="game-card">
-                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
+                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -15,42 +14,31 @@
                     </div>
                 </li>
             </ul>
+            <div v-if="games.length === 0" class="text-center mt-2">
+                <h4>Aucun jeu trouvé pour cette recherche.</h4>
+            </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore';
+import { ref, onMounted, watch } from 'vue';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/index.js';
+import { searchQuery } from '../composables/searchState.js'
 
+const allGames = ref([]);
 const games = ref([]);
 
-/*Fonction pour récupérer les jeux de la BDD Firebase*/
 const fetchAllGames = async () => {
     const gamesRef = collection(db, 'games');
-
-    //Obtention de la date d'aujourd'hui
-    const today = new Date();
-    // Mettre l'heure à 00:00:00.000 pour comparer avec le début de la journée.
-    today.setHours(0, 0, 0, 0);
-
-    // Créer une requête pour récupérer les jeux dont la date de sortie est égale ou postérieure à aujourd'hui.
-    //    - where('dateSortie', '>=', today) : Filtre par date de sortie future ou égale à aujourd'hui
-    //    - orderBy('dateSortie') : Trie les résultats par date (nécessaire avec le filtre de plage)
-    const gamesQuery = query(
-        gamesRef,
-        where('dateSortie', '>=', today),
-        orderBy('dateSortie')
-    );
-
+    const gamesQuery = query(gamesRef, orderBy('name'));
     try {
         const querySnapshot = await getDocs(gamesQuery);
-        games.value = [];
-
+        allGames.value = [];
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            games.value.push({
+            allGames.value.push({
                 id: doc.id,
                 titre: data.name,
                 link: data.link,
@@ -59,20 +47,34 @@ const fetchAllGames = async () => {
                 date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
             });
         });
+        filterGames();
     } catch (error) {
         console.error('Erreur lors de la récupération des jeux :', error);
     }
 };
 
-// Exécute la fonction de récupération des jeux quand le composant est monté
+/* Filtrage des jeux selon searchQuery */
+function filterGames() {
+    if (!searchQuery.value) {
+        games.value = allGames.value;
+    } else {
+        games.value = allGames.value.filter(game =>
+            game.titre.toLowerCase().includes(searchQuery.value.toLowerCase())
+        );
+    }
+}
+
+// Met à jour la liste à chaque changement de searchQuery
+watch(searchQuery, filterGames);
+
 onMounted(() => {
     fetchAllGames();
 });
 </script>
 
 <style scoped>
-
-h1, p{
+h1,
+p {
     text-align: center;
 }
 
@@ -104,7 +106,8 @@ a {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     padding: 0;
-    max-width: 1300px; /* ou 1200px selon votre préférence */
+    max-width: 1300px;
+    /* ou 1200px selon votre préférence */
     margin: 0 auto;
 }
 
@@ -148,21 +151,22 @@ a {
     justify-content: space-between;
 }
 
-.dateSortie{
+.dateSortie {
     text-align: start;
 }
 
 @media (min-width: 1250px) {
 
-    h1, p{
-    text-align: start;
-    margin-left: 50px;
-}
+    h1,
+    p {
+        text-align: start;
+        margin-left: 50px;
+    }
 
-.dateSortie{
-    text-align: start;
-    margin: 0px;
-}
+    .dateSortie {
+        text-align: start;
+        margin: 0px;
+    }
 
     #precoIn {
         overflow-x: visible;
@@ -171,7 +175,8 @@ a {
         margin-left: auto;
         margin-right: auto;
         gap: 50px;
-        padding: 0 80px; /* Plus d'espace sur grand écran */
+        padding: 0 80px;
+        /* Plus d'espace sur grand écran */
     }
 
     .game-card {

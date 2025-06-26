@@ -9,6 +9,9 @@ import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
 import Panier from '../views/Panier.vue';
+import GameDetail from '../views/GameDetailPage.vue';
+import NotFound from '../views/Page404.vue';
+import Recherche from '../views/Recherche.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -48,6 +51,31 @@ const router = createRouter({
         name: 'panier',
         component: Panier
     },
+    {
+        path: '/game/:id',
+        name: 'gameDetailPage',
+        component: GameDetail
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
+    },
+    {
+      path: '/recherche',
+      name: 'recherche',
+      component: Recherche
+    },
+    {
+        path: '/game/:id',
+        name: 'gameDetailPage',
+        component: GameDetail
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
+    }
     // Ajoutez d'autres routes ici si nécessaire
   ],
   // Cette fonction permet de styliser le lien actif dans la navbar

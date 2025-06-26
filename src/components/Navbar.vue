@@ -63,14 +63,19 @@
           <li class="nav-item"><router-link class="nav-link" to="/precommandes">Précommandes</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/prochaines-sorties">Prochaines sorties</router-link></li>
         </ul>
-
-        <div class="d-flex align-items-center ms-auto">
-          
-          <transition name="fade">
-            <button v-if="!isSearchActiveMobile" class="btn btn-outline-secondary d-lg-none search-icon-mobile" type="button" @click="toggleSearchInputMobile">
-              <i class="bi bi-search navbar-icon"></i>
+        <div class="d-flex align-items-center">
+          <form class="d-flex me-3" role="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Rechercher..."
+              aria-label="Search"
+              v-model="searchQuery"
+              ref="searchInput"
+            />
+            <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
+              <i class="bi bi-search"></i>
             </button>
-          </transition>
 
           <transition name="fade">
             <button v-if="!isSearchActive" key="search-icon" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
@@ -125,13 +130,44 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted,computed , watch,nextTick } from 'vue';
 import { Dropdown } from 'bootstrap';
-import { useRoute } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore'; 
 import { signOut } from '../services/authService'; 
+import { Collapse } from 'bootstrap';
+import { isDarkMode, toggleDarkMode } from '../composables/darkMode.js'
+import { searchQuery } from '../composables/searchState.js'
 import { doc, onSnapshot } from 'firebase/firestore'; 
 import { db } from '../firebase'; 
+
+const router = useRouter();
+const route = useRoute();
+searchQuery.value = route.query.q || '';
+
+const searchInput = ref(null);
+
+const searchTriggered = ref(false); // <-- Ajout du flag
+
+watch(searchQuery, (newValue) => {
+  if (newValue !== '') {
+    searchTriggered.value = true; // On indique que la navigation vient de la recherche
+    router.replace({ path: '/recherche', query: { q: newValue } });
+  }
+});
+
+// Watch sur la route, mais focus seulement si navigation par recherche
+watch(
+  () => route.fullPath,
+  () => {
+    if (searchTriggered.value) {
+      setTimeout(() => {
+        searchInput.value?.focus();
+        searchTriggered.value = false; 
+      }, 0);
+    }
+  }
+);
 
 const route = useRoute();
 const authStore = useAuthStore(); 
@@ -142,42 +178,9 @@ const isSearchActive = ref(false);
 const searchTerm = ref('');
 const searchInputRef = ref(null);
 const searchFormRef = ref(null);
-// --- LOGIQUE DU THÈME MISE À JOUR ---
 
-// 1. Initialisez la variable sans valeur par défaut fixe.
-const isDarkMode = ref(false); 
+const isDarkMode = ref(true); 
 
-// 2. Mettez à jour la fonction de bascule
-const toggleDarkMode = () => {
-  // Inverse l'état local
-  isDarkMode.value = !isDarkMode.value;
-  
-  // Applique la classe au body
-  if (isDarkMode.value) {
-    document.body.classList.add('dark-mode');
-  } else {
-    document.body.classList.remove('dark-mode');
-  }
-  
-  // Sauvegarde le choix dans le localStorage pour la persistance
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-};
-
-
-// 3. Mettez à jour le onMounted pour synchroniser l'état du BOUTON
-onMounted(() => {
-  // Synchronise l'état du bouton avec ce qui est dans le localStorage
-  const savedTheme = localStorage.getItem('theme');
-  isDarkMode.value = savedTheme === 'dark';
-
-  // Le reste de votre logique onMounted
-  const profileDropdownElement = document.getElementById('navbarDropdownProfile');
-  if (profileDropdownElement) {
-    profileDropdown = new Dropdown(profileDropdownElement);
-    profileDropdownElement.addEventListener('show.bs.dropdown', () => isProfileDropdownOpen.value = true);
-    profileDropdownElement.addEventListener('hide.bs.dropdown', () => isProfileDropdownOpen.value = false);
-  }
-});
 const toggleSearchInput = () => {
   isSearchActive.value = !isSearchActive.value;
   if (isSearchActive.value) {
@@ -391,8 +394,10 @@ watch(() => authStore.user, (newUser) => {
 .navbar {
   background-color: var(--background-two)!important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative; 
   z-index: 1030; 
+  position: sticky;
+  top: 0;
+  border-bottom: var(--border-separator-one) 1px solid ;
 }
 .nav-link {
   font-weight: 500;
