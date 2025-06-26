@@ -37,9 +37,16 @@
           </li>
         </ul>
         <div class="d-flex align-items-center">
-          <form class="d-none d-lg-flex me-3" role="search">
-            <input class="form-control me-2" type="search" placeholder="Rechercher..." aria-label="Search">
-            <button class="btn btn-outline-secondary" type="submit">
+          <form class="d-flex me-3" role="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Rechercher..."
+              aria-label="Search"
+              v-model="searchQuery"
+              ref="searchInput"
+            />
+            <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
               <i class="bi bi-search"></i>
             </button>
           </form>
@@ -56,9 +63,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { Collapse } from 'bootstrap';
-import { isDarkMode, toggleDarkMode } from '../services/darkMode.js'
+import { isDarkMode, toggleDarkMode } from '../composables/darkMode.js'
+import { searchQuery } from '../composables/searchState.js'
+
+const router = useRouter();
+const route = useRoute();
+searchQuery.value = route.query.q || '';
+
+const searchInput = ref(null);
+
+const searchTriggered = ref(false); // <-- Ajout du flag
+
+watch(searchQuery, (newValue) => {
+  if (newValue !== '') {
+    searchTriggered.value = true; // On indique que la navigation vient de la recherche
+    router.replace({ path: '/recherche', query: { q: newValue } });
+  }
+});
+
+// Watch sur la route, mais focus seulement si navigation par recherche
+watch(
+  () => route.fullPath,
+  () => {
+    if (searchTriggered.value) {
+      setTimeout(() => {
+        searchInput.value?.focus();
+        searchTriggered.value = false; 
+      }, 0);
+    }
+  }
+);
 
 
 const collapseElement = ref(null);
@@ -69,7 +106,7 @@ onMounted(() => {
   if (collapseElement.value) {
     bsCollapse = new Collapse(collapseElement.value, { toggle: false });
   }
-
+  searchInput.value?.focus();
 });
 
 const toggleCollapse = () => {
