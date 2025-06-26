@@ -56,8 +56,16 @@ const router = createRouter({
     }
     // Ajoutez d'autres routes ici si nécessaire
   ],
+
+  
   // Cette fonction permet de styliser le lien actif dans la navbar
-  linkActiveClass: 'active' 
+  linkActiveClass: 'active',
+
+  scrollBehavior(to, from, savedPosition) {
+    // Toujours revenir en haut de la page en changeant de page
+    return { top: 0 }
+  }
+  
 })
 
 export default router

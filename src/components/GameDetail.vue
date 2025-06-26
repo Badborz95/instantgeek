@@ -52,7 +52,7 @@
     </div>
     <div v-else>
       <!--Version desktop-->
-      <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
+      <div class="background" :style="{ backgroundImage: `url(${game.hero})` }">
         <div>
           <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
         </div>
@@ -104,7 +104,7 @@
       </div>
 
     </div>
-
+    <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
   <div v-else>
     <p>Chargement du jeu...</p>
@@ -117,6 +117,8 @@ import { useRoute } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
+import SimilarGames from './SimilarGames.vue'
+
 
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
@@ -138,7 +140,8 @@ const fetchGameById = async (id) => {
         date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
         description: data.description,
         tags: data.tag,
-        platform: data.plateforme
+        platform: data.plateforme,
+        hero: data.hero
       }
     } else {
       router.replace({ name: 'not-found' }); //Redirige vers la page 404 si aucun ID trouvé
@@ -241,7 +244,7 @@ onUnmounted(() => {
 
 .price {
   font-size: 3em;
-  justify-self:center;
+  justify-self: center;
   margin-top: 20px;
 }
 
@@ -273,7 +276,7 @@ onUnmounted(() => {
   margin-top: 10px;
 }
 
-.infos p{
+.infos p {
   font-size: 1.5em;
 }
 
