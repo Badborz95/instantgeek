@@ -104,9 +104,7 @@
                 <li class="d-lg-none"><router-link class="dropdown-item" to="/prochaines-sorties">Prochaines sorties</router-link></li>
                 <li class="d-lg-none" v-if="!authStore.isLoggedIn"><hr class="dropdown-divider"></li>
                 <li><router-link class="dropdown-item" to="/support">Support 24/7</router-link></li>
-                <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/dashboard">Dashboard</router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/mes-achats">Mes achats</router-link></li>
-                <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/partenariat">Partenariat <span class="badge bg-secondary">0.00 €</span></router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span v-if="authStore.userWishlistCount !== null" class="badge bg-danger rounded-pill">{{ authStore.userWishlistCount }}</span><span v-else class="badge bg-danger rounded-pill">0</span></router-link></li>
                 <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
                 <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
