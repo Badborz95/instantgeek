@@ -8,6 +8,7 @@ import Precommandes from '../views/Precommandes.vue'
 import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
+import Panier from '../views/Panier.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,6 +42,11 @@ const router = createRouter({
         path: '/connexion',
         name: 'connexion', // Ajout d'un nom pour la route de connexion
         component: Connexion 
+    },
+    {
+        path: '/panier',
+        name: 'panier',
+        component: Panier
     },
     // Ajoutez d'autres routes ici si nécessaire
   ],
