@@ -1,33 +1,108 @@
 <template>
   <div class="container-fluid py-2 gameDetail" v-if="game">
-    <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
-      <h1 class="title">{{ game.titre }}</h1>
-      <div class="game-info">
-        <h3 class="tags">Tags :{{ game.price }}</h3>
-        <p class="synopsis">
-          Synopsis : <!---<TruncatedText :text="game.titre" :maxLength="80" />-->
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quas et est perspiciatis vel at culpa alias, libero
-          maiores, eos esse, ex voluptatibus dicta soluta a nobis neque vitae illum blanditiis.
-        </p>
+
+
+    <div v-if="isMobile">
+      <!--Version mobile-->
+      <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
+        <h1 class="title">{{ game.titre }}</h1>
+        <div class="game-info">
+          <h3 class="tags">
+            <ul class="tag-list">
+              <li v-for="(tag, index) in game.tags" :key="index" class="tag">
+                {{ tag }}
+              </li>
+            </ul>
+          </h3>
+
+          <p class="synopsis">
+            <TruncatedText :text="game.description" :maxLength="200" />
+          </p>
+        </div>
+      </div>
+      <div class="game-details">
+        <div class="infos">
+          <div class="infos1">
+            <div class="paltform">
+              <h3>{{ game.platform }}</h3>
+            </div>
+            <p>|</p>
+            <div class="stock">
+              <h3>En stock</h3>
+            </div>
+          </div>
+          <h3 class="price">{{ game.price }}</h3>
+        </div>
+        <div class="buttons">
+          <button class="favorite">favoris</button>
+          <button class="cart">
+            <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
+              Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
+              https://fontawesome.com/license/free
+              Copyright 2025 Fonticons, Inc.-->
+              <path
+                d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+            </svg>
+          </button>
+        </div>
+        <div class="description">
+          <h3>description</h3>
+        </div>
       </div>
     </div>
-    <div class="game-details">
-      <div class="infos">
-        <div class="infos1">
-          <div class="paltform">
-            <h3>Plateforme</h3>
+    <div v-else>
+      <!--Version desktop-->
+      <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
+        <div>
+          <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
+        </div>
+        <div class="desktop">
+          <h1 class="title">{{ game.titre }}</h1>
+          <div class="game-info">
+            <h3 class="tags">
+              <ul class="tag-list">
+                <li v-for="(tag, index) in game.tags" :key="index" class="tag">
+                  {{ tag }}
+                </li>
+              </ul>
+            </h3>
+            <p class="synopsis">
+              <!---<TruncatedText :text="game.titre" :maxLength="80" />-->
+              {{ game.description }}
+            </p>
           </div>
-          <div class="stock">
-            <h3>En stock</h3>
+          <div class="game-details">
+            <div class="infos">
+              <div class="infos1">
+                <div class="paltform">
+                  <h3>{{ game.platform }}</h3>
+                </div>
+                <p>|</p>
+                <div class="stock">
+                  <h3>En stock</h3>
+                </div>
+              </div>
+              <h3 class="price">{{ game.price }}</h3>
+            </div>
+            <div class="buttons">
+              <button class="favorite">favoris</button>
+              <button class="cart">
+                <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
+                  Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
+                  https://fontawesome.com/license/free
+                  Copyright 2025 Fonticons, Inc.-->
+                  <path
+                    d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                </svg>
+              </button>
+            </div>
+            <div class="description">
+              <h3>description</h3>
+            </div>
           </div>
         </div>
-        <div class="price"></div>
       </div>
-      <div class="buttons">
-        <button class="favorite">coeur</button>
-        <button class="cart">AJouter au panier</button>
-      </div>
-      <div class="description"></div>
+
     </div>
 
   </div>
@@ -37,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
@@ -61,6 +136,9 @@ const fetchGameById = async (id) => {
         image: data.image,
         price: `${data.price}€`,
         date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
+        description: data.description,
+        tags: data.tag,
+        platform: data.plateforme
       }
     } else {
       router.replace({ name: 'not-found' }); //Redirige vers la page 404 si aucun ID trouvé
@@ -72,6 +150,7 @@ const fetchGameById = async (id) => {
 
 onMounted(() => {
   if (gameId.value) fetchGameById(gameId.value)
+
 })
 
 // Facultatif : si on arrive sur ce composant déjà chargé mais avec un autre id (navigation interne)
@@ -79,6 +158,23 @@ watch(() => route.params.id, (newId) => {
   gameId.value = newId
   fetchGameById(newId)
 })
+
+//Vérifie si la taille de l'écran correspond à
+const isMobile = ref(window.innerWidth < 768)
+
+const handleResize = () => {
+  isMobile.value = window.innerWidth < 768
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
+
+
 </script>
 
 <style scoped>
@@ -102,6 +198,7 @@ watch(() => route.params.id, (newId) => {
 
 .title {
   align-self: center;
+  margin-bottom: 10px;
 }
 
 .game-info {
@@ -110,8 +207,22 @@ watch(() => route.params.id, (newId) => {
 }
 
 .tags {
-  width: 30%;
+  width: 50%;
   justify-self: flex-end;
+  margin-bottom: 5px;
+}
+
+.tag-list {
+  list-style-type: none;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.tag-list li {
+  background-color: var(--background-one);
+  padding: 7px;
+  border-radius: 0.5em;
 }
 
 .synopsis {
@@ -126,6 +237,12 @@ watch(() => route.params.id, (newId) => {
   color: var(--text-two);
   background-color: color-mix(in srgb, var(--background-two) 80%, transparent);
   border-radius: 10px;
+}
+
+.price {
+  font-size: 3em;
+  justify-self:center;
+  margin-top: 20px;
 }
 
 .game-details {
@@ -154,5 +271,84 @@ watch(() => route.params.id, (newId) => {
   border-radius: 1em;
   padding: 5px;
   margin-top: 10px;
+}
+
+.infos p{
+  font-size: 1.5em;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  margin-top: 20px;
+  align-items: center;
+}
+
+
+.cart {
+  width: 75%;
+  display: flex;
+  justify-content: space-evenly;
+  height: 80px;
+  background-color: var(--text-one);
+  border: 0;
+  border-radius: 2em;
+  border: solid 1px black;
+}
+
+.cart>svg {
+  height: 60px;
+  align-self: center;
+}
+
+.cart>h3 {
+  align-self: center;
+}
+
+.favorite {
+  width: 15%;
+  height: 80px;
+}
+
+.description {
+  margin-top: 50px;
+}
+
+@media (min-width: 768px) {
+  .background {
+    height: 1080px;
+    padding: 8% 15%;
+  }
+
+  .background {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+
+  .background img {
+    width: 80%;
+  }
+
+  .desktop {
+    width: 60%;
+  }
+
+  .title {
+    justify-self: flex-start;
+  }
+
+  .tags {
+    width: 60%;
+  }
+
+  .synopsis {
+    width: 70%;
+  }
+
+  .game-details {
+    background-color: transparent;
+  }
 }
 </style>
