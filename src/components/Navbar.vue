@@ -76,7 +76,12 @@
             <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
               <i class="bi bi-search"></i>
             </button>
+<<<<<<< HEAD
           </form>
+=======
+            </form>
+
+>>>>>>> 868a753d5fbe3002d8f61339efcebf405eaedbd5
           <transition name="fade">
             <button v-if="!isSearchActive" key="search-icon" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
               <i class="bi bi-search navbar-icon"></i>
