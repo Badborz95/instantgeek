@@ -1,12 +1,11 @@
 <template>
     <div class="container-fluid py-2 preco">
         <div>
-            <h1 class="mt-3">Précommandes</h1>
-            <p class="mb-5">Réservez dès maintenant les articles à venir.</p>
+            <h1 class="mt-3 mb-5">Nouveautés</h1>
             <ul id='precoIn'>
                 <li v-for="game in games" :key="game.id">
                     <div class="game-card">
-                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
+                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -32,15 +31,18 @@ const fetchAllGames = async () => {
 
     //Obtention de la date d'aujourd'hui
     const today = new Date();
-    // Mettre l'heure à 00:00:00.000 pour comparer avec le début de la journée.
     today.setHours(0, 0, 0, 0);
+
+    const sixMonthAgo = new Date(today);
+    sixMonthAgo.setDate(today.getDate() - 180);
 
     // Créer une requête pour récupérer les jeux dont la date de sortie est égale ou postérieure à aujourd'hui.
     //    - where('dateSortie', '>=', today) : Filtre par date de sortie future ou égale à aujourd'hui
     //    - orderBy('dateSortie') : Trie les résultats par date (nécessaire avec le filtre de plage)
     const gamesQuery = query(
         gamesRef,
-        where('dateSortie', '>=', today),
+        where('dateSortie', '>=', sixMonthAgo),
+        where('dateSortie', '<=', today),
         orderBy('dateSortie')
     );
 

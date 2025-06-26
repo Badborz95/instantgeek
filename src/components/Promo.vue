@@ -4,7 +4,7 @@
     <div>
       <ul class="media-scroller snaps-inline">
         <li v-for="game in games" :key="game.id">
-          <div class="game-card">
+          <div class="game-card mt-4 mb-5">
             <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
             <div class="game-text">
               <h3 class="titre">{{ game.titre }} :</h3>
@@ -21,17 +21,19 @@
 <script setup>
 
 import { ref, onMounted } from 'vue';
-import { collection, getDocs, query, where } from 'firebase/firestore'; 
+import { collection, getDocs, query, where, limit } from 'firebase/firestore'; 
 import { db } from '../firebase/index.js'; 
 
 const games = ref([]);
 
-// Liste des IDs des jeux à afficher
-const selectedIds = ['kn9pH1dkwMBBF3YOvmvN', 'sTIYDzvGIubJuR7DOIaD', 'NUSTlf7nbt76DKvcEFmv']; // Remplace par tes vrais IDs
 
 const fetchAllGames = async () => {
   const gamesRef = collection(db, 'games');
-  const gamesQuery = query(gamesRef, where('__name__', 'in', selectedIds));
+  const gamesQuery = query(
+    gamesRef, 
+    where('featured', '==', true), 
+    limit(3)
+  );
 
   try {
     const querySnapshot = await getDocs(gamesQuery);
@@ -77,7 +79,6 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  
 }
 
 .game-card {
@@ -86,6 +87,11 @@ a {
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  transition: all 300ms;
+}
+
+.game-card:hover {
+    transform: scale(1.1);
 }
 
 .game-card img {
@@ -96,13 +102,17 @@ a {
   gap: 20px;
   grid-template-rows: min-content;
   border-radius: 5%;
+  box-shadow: #061d20 5px 10px 10px 0px;
+}
 
+.game-card img:hover {
+    box-shadow: 4px 5px 17px -4px #268391;
 }
 
 .game-card h3 {
   margin-left: 10px;
   margin-top: 5px;
-  font-size: 1.3em
+  font-size: 1.2em
 }
 
 .game-card .game-text {
@@ -142,5 +152,9 @@ a {
     justify-content: center;
 
   }
+
+.mb-5 {
+  margin-bottom: 0rem !important;
+}
 }
 </style>
