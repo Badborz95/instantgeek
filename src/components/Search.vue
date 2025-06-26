@@ -2,6 +2,47 @@
     <div class="container-fluid py-2 preco">
         <div>
             <h1 class="mt-3 mb-5">Recherche</h1>
+            <form id="filter" action="" >
+                <select v-model="selectedPlatform" @change="filterGames">
+                    <option value="">Systèmes</option>
+                    <option value="Steam">Steam</option>
+                    <option value="Switch">Nintendo Switch</option>
+                    <option value="Playstation">PlayStation</option>
+                    <option value="Xbox">Xbox Series</option>
+                </select>
+
+                <select v-model="selectedGenre" @change="filterGames">
+                    <option value="">Genres</option>
+                    <option value="Action">Action</option>
+                    <option value="Aventure">Aventure</option>
+                    <option value="Histoire">Histoire</option>
+                    <option value="Horreur">Horreur</option>
+                    <option value="Indies">Indies</option>
+                    <option value="Infiltration">Infiltration</option>
+                    <option value="Multijoueur">Multijoueur</option>
+                    <option value="RPG">RPG</option>
+                    <option value="Difficulté">Difficulté</option>
+                    <option value="FPS">FPS</option>
+                    <option value="Roguelite">Roguelite</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Anime">Anime</option>
+                    <option value="Gestion">Gestion</option>
+                    <option value="Stratégie">Stratégie</option>
+                    <option value="Course">Course</option>
+                    <option value="Simulation">Simulation</option>
+                </select>
+
+                <div class ="price">
+                    <span>Entre</span>
+                    <input type="number" v-model="selectedPriceMin" placeholder="Prix min" @input="filterGames" />
+                    <span>à</span>
+                    <input type="number" v-model="selectedPriceMax" placeholder="Prix max" @input="filterGames" />
+                    <span>€</span>
+                </div>
+            </form>
+
+
+
             <ul id='precoIn'>
                 <li v-for="game in games" :key="game.id">
                     <div class="game-card">
@@ -29,6 +70,10 @@ import { searchQuery } from '../composables/searchState.js'
 
 const allGames = ref([]);
 const games = ref([]);
+const selectedPlatform = ref('');
+const selectedGenre = ref('');
+const selectedPriceMin = ref(null); 
+const selectedPriceMax = ref(null);
 
 const fetchAllGames = async () => {
     const gamesRef = collection(db, 'games');
@@ -43,8 +88,10 @@ const fetchAllGames = async () => {
                 titre: data.name,
                 link: data.link,
                 image: data.image,
+                plateforme: data.plateforme,
                 price: `${data.price}€`,
                 date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
+                tag: data.tag || []
             });
         });
         filterGames();
@@ -55,17 +102,48 @@ const fetchAllGames = async () => {
 
 /* Filtrage des jeux selon searchQuery */
 function filterGames() {
-    if (!searchQuery.value) {
-        games.value = allGames.value;
-    } else {
-        games.value = allGames.value.filter(game =>
+    let filtered = allGames.value;
+
+    // Filtre par searchQuery
+    if (searchQuery.value) {
+        filtered = filtered.filter(game =>
             game.titre.toLowerCase().includes(searchQuery.value.toLowerCase())
         );
     }
+
+    // Filtre par plateforme sélectionnée
+    if (selectedPlatform.value) {
+        filtered = filtered.filter(game =>
+            game.plateforme.includes(selectedPlatform.value)
+        );
+    }
+
+    // Filtre par genre sélectionné
+    if (selectedGenre.value) {
+        filtered = filtered.filter(game =>
+            game.tag.includes(selectedGenre.value)
+        );
+    }
+    // Filtre par prix minimum
+    if (selectedPriceMin.value !== null && selectedPriceMin.value !== '') {
+        filtered = filtered.filter(game => {
+            const price = parseFloat(game.price.replace('€', ''));
+            return price >= selectedPriceMin.value;
+        });
+    }
+    // Filtre par prix maximum
+    if (selectedPriceMax.value !== null && selectedPriceMax.value !== '') {
+        filtered = filtered.filter(game => {
+            const price = parseFloat(game.price.replace('€', ''));
+            return price <= selectedPriceMax.value;
+        });
+    }
+
+    games.value = filtered;
 }
 
-// Met à jour la liste à chaque changement de searchQuery
-watch(searchQuery, filterGames);
+// Met à jour la liste à chaque changement de searchQuery ou selectedPlatform
+watch([searchQuery, selectedPlatform, selectedGenre], filterGames);
 
 onMounted(() => {
     fetchAllGames();
