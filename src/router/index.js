@@ -8,6 +8,7 @@ import Precommandes from '../views/Precommandes.vue'
 import ProchainesSorties from '../views/ProchainesSorties.vue'
 import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
+import Panier from '../views/Panier.vue';
 import GameDetail from '../views/GameDetailPage.vue';
 import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
@@ -44,6 +45,11 @@ const router = createRouter({
         path: '/connexion',
         name: 'connexion', // Ajout d'un nom pour la route de connexion
         component: Connexion 
+    },
+    {
+        path: '/panier',
+        name: 'panier',
+        component: Panier
     },
     {
         path: '/game/:id',
