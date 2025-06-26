@@ -11,30 +11,26 @@
         >
       </router-link>
 
+<!-- Template pour le processus de panier -->
       <template v-if="isOnCartProcessPage">
         <div class="navbar-center-content flex-grow-1 d-flex justify-content-center align-items-center">
-          
           <div class="ig-stepper">
             <div class="step" :class="{ 'completed': currentStep > 1, 'active': currentStep === 1 }">
               <div class="step-circle">1</div>
               <div class="step-label">Panier</div>
             </div>
-            
             <div class="step-line" :class="{ 'completed': currentStep >= 2 }"></div>
-
             <div class="step" :class="{ 'completed': currentStep > 2, 'active': currentStep === 2 }">
               <div class="step-circle">2</div>
               <div class="step-label">Paiement</div>
             </div>
-            
             <div class="step-line" :class="{ 'completed': currentStep >= 3 }"></div>
-            
             <div class="step" :class="{ 'completed': currentStep > 3, 'active': currentStep === 3 }">
               <div class="step-circle">3</div>
               <div class="step-label">Validation</div>
             </div>
           </div>
-          </div>
+        </div>
         <div class="secure-payment-cart d-flex align-items-center ms-auto">
           <i class="bi bi-check-circle-fill secure-icon-cart me-2"></i>
           <div class="text-end">
@@ -44,58 +40,54 @@
         </div>
       </template>
 
+<!-- Template pour toutes les autres pages -->
       <template v-else>
-        <form class="search-form-mobile-overlay d-lg-none" :class="{ 'active': isSearchActiveMobile }" @submit.prevent="performSearchMobile">
-            <input 
-                class="form-control me-2 search-input-mobile-overlay" 
-                type="search" 
-                placeholder="Rechercher..." 
-                aria-label="Search"
-                v-model="searchTermMobile"
-                ref="searchInputMobileRef"
-            >
-            <button class="btn search-submit-btn" type="submit"><i class="bi bi-search"></i></button>
-            <button class="btn search-close-btn-mobile-overlay" type="button" @click="closeSearchInputMobile"><i class="bi bi-x-lg"></i></button>
+<!-- Barre de recherche mobile -->
+        <form class="search-form-mobile d-lg-none" :class="{ 'active': isSearchActiveMobile }" @submit.prevent="performSearchMobile">
+          <input 
+            class="form-control me-2 search-input-mobile" 
+            type="search" 
+            placeholder="Rechercher..." 
+            aria-label="Search"
+            v-model="searchQuery"
+            ref="searchInputMobileRef"
+          >
+          <button class="btn search-close-btn-mobile" type="button" @click="closeSearchInputMobile"><i class="bi bi-x-lg"></i></button>
         </form>
 
+<!-- Liens de navigation centraux (PC) -->
         <ul class="navbar-nav d-none d-lg-flex position-absolute top-50 start-50 translate-middle">
           <li class="nav-item"><router-link class="nav-link" to="/nouveautes">Nouveautés</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/precommandes">Précommandes</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/prochaines-sorties">Prochaines sorties</router-link></li>
         </ul>
-        <div class="d-flex align-items-center">
-          <form class="d-flex me-3" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Rechercher..."
-              aria-label="Search"
-              v-model="searchQuery"
-              ref="searchInput"
-            />
-            <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
-              <i class="bi bi-search"></i>
+        
+<!-- Icônes et actions de droite -->
+        <div class="d-flex align-items-center ms-auto">
+          
+          <transition name="fade">
+            <button v-if="!isSearchActiveMobile" class="btn btn-outline-secondary d-lg-none search-icon-mobile" type="button" @click="toggleSearchInputMobile">
+              <i class="bi bi-search navbar-icon"></i>
             </button>
-            </form>
+          </transition>
 
           <transition name="fade">
-            <button v-if="!isSearchActive" key="search-icon" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
+            <button v-if="!isSearchActive" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
               <i class="bi bi-search navbar-icon"></i>
             </button>
           </transition>
 
           <form class="search-form d-none d-lg-flex" :class="{ 'active': isSearchActive }" @submit.prevent="performSearch" ref="searchFormRef">
-              <input 
-                  class="form-control me-2 search-input" 
-                  type="search" 
-                  placeholder="Rechercher..." 
-                  aria-label="Search"
-                  v-model="searchTerm"
-                  ref="searchInputRef"
-                  @blur="handleSearchBlur"
-              >
-              <button class="btn search-submit-btn" type="submit"><i class="bi bi-search"></i></button>
-              <button v-if="isSearchActive" class="btn search-close-btn" type="button" @click="closeSearchInput"><i class="bi bi-x-lg"></i></button>
+            <input 
+              class="form-control me-2 search-input" 
+              type="search" 
+              placeholder="Rechercher..." 
+              aria-label="Search"
+              v-model="searchQuery"
+              ref="searchInputRef"
+              @blur="handleSearchBlur"
+            >
+            <button v-if="isSearchActive" class="btn search-close-btn" type="button" @click="closeSearchInput"><i class="bi bi-x-lg"></i></button>
           </form>
 
           <div class="nav-item dropdown">
@@ -104,25 +96,26 @@
               <i v-else class="bi bi-person-circle navbar-icon"></i>
             </a>
             <ul class="dropdown-menu dropdown-menu-end profile-dropdown-menu" aria-labelledby="navbarDropdownProfile" :class="{ 'show': isProfileDropdownOpen }">
-                <li v-if="authStore.isLoggedIn"><span class="dropdown-header">Bienvenue, {{ authStore.currentUsername }}!</span><hr class="dropdown-divider"></li>
-                <li class="d-lg-none"><router-link class="dropdown-item" to="/nouveautes">Nouveautés</router-link></li>
-                <li class="d-lg-none"><router-link class="dropdown-item" to="/precommandes">Précommandes</router-link></li>
-                <li class="d-lg-none"><router-link class="dropdown-item" to="/prochaines-sorties">Prochaines sorties</router-link></li>
-                <li class="d-lg-none" v-if="!authStore.isLoggedIn"><hr class="dropdown-divider"></li>
-                <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/mes-achats">Mes achats</router-link></li>
-                <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span v-if="authStore.userWishlistCount !== null" class="badge bg-danger rounded-pill">{{ authStore.userWishlistCount }}</span><span v-else class="badge bg-danger rounded-pill">0</span></router-link></li>
-                <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
-                <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
-                <li>
-                  <button class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
-                    <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
-                    <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
-                  </button>
-                </li>
-                <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
-                <li><router-link v-if="!authStore.isLoggedIn" class="dropdown-item custom-auth-link" to="/connexion">Se connecter</router-link><a v-else class="dropdown-item custom-auth-link" href="#" @click.prevent="handleLogout">Déconnexion</a></li>
+              <li v-if="authStore.isLoggedIn"><span class="dropdown-header">Bienvenue, {{ authStore.currentUsername }}!</span><hr class="dropdown-divider"></li>
+              <li class="d-lg-none"><router-link class="dropdown-item" to="/nouveautes">Nouveautés</router-link></li>
+              <li class="d-lg-none"><router-link class="dropdown-item" to="/precommandes">Précommandes</router-link></li>
+              <li class="d-lg-none"><router-link class="dropdown-item" to="/prochaines-sorties">Prochaines sorties</router-link></li>
+              <li class="d-lg-none" v-if="!authStore.isLoggedIn"><hr class="dropdown-divider"></li>
+              <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/mes-achats">Mes achats</router-link></li>
+              <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span v-if="authStore.userWishlistCount !== null" class="badge bg-danger rounded-pill">{{ authStore.userWishlistCount }}</span><span v-else class="badge bg-danger rounded-pill">0</span></router-link></li>
+              <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
+              <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
+              <li>
+                <button class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
+                  <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
+                  <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
+                </button>
+              </li>
+              <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
+              <li><router-link v-if="!authStore.isLoggedIn" class="dropdown-item custom-auth-link" to="/connexion">Se connecter</router-link><a v-else class="dropdown-item custom-auth-link" href="#" @click.prevent="handleLogout">Déconnexion</a></li>
             </ul>
           </div>
+          
           <router-link class="nav-link text ms-2" to="/panier"><i class="bi bi-cart3 navbar-icon"></i></router-link>
         </div>
       </template>
@@ -131,75 +124,58 @@
 </template>
 
 <script setup>
-import { ref, onMounted,computed , watch,nextTick } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { Dropdown } from 'bootstrap';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuthStore } from '../stores/authStore'; 
-import { signOut } from '../services/authService'; 
-import { Collapse } from 'bootstrap';
-import { isDarkMode, toggleDarkMode } from '../composables/darkMode.js'
-import { searchQuery } from '../composables/searchState.js'
-import { doc, onSnapshot } from 'firebase/firestore'; 
-import { db } from '../firebase'; 
+import { useAuthStore } from '../stores/authStore';
+import { signOut } from '../services/authService';
+import { isDarkMode, toggleDarkMode } from '../composables/darkMode.js';
+import { searchQuery } from '../composables/searchState.js';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
+// --- INIT ---
 const router = useRouter();
 const route = useRoute();
-searchQuery.value = route.query.q || '';
+const authStore = useAuthStore();
 
-const searchInput = ref(null);
 
-const searchTriggered = ref(false); // <-- Ajout du flag
+const isProfileDropdownOpen = ref(false);
+let profileDropdown = null;
+const searchNavigationFlag = ref(false);
 
-watch(searchQuery, (newValue) => {
-  if (newValue !== '') {
-    searchTriggered.value = true; // On indique que la navigation vient de la recherche
-    router.replace({ path: '/recherche', query: { q: newValue } });
-  }
-});
-
-// Watch sur la route, mais focus seulement si navigation par recherche
-watch(
-  () => route.fullPath,
-  () => {
-    if (searchTriggered.value) {
-      setTimeout(() => {
-        searchInput.value?.focus();
-        searchTriggered.value = false; 
-      }, 0);
-    }
-  }
-);
-
-const route = useRoute();
-const authStore = useAuthStore(); 
-const isProfileDropdownOpen = ref(false); 
-let profileDropdown = null; 
-let unsubscribeWishlist = null; 
-const isSearchActive = ref(false); 
-const searchTerm = ref('');
+const isSearchActive = ref(false);
 const searchInputRef = ref(null);
 const searchFormRef = ref(null);
-const isDarkMode = ref(true); 
+
+const isSearchActiveMobile = ref(false);
+const searchInputMobileRef = ref(null);
+
+
+const executeSearch = () => {
+  if (searchQuery.value.trim() !== '' && route.query.q !== searchQuery.value.trim()) {
+    searchNavigationFlag.value = true;
+    router.push({ path: '/recherche', query: { q: searchQuery.value } });
+  }
+};
+
+const performSearch = () => { executeSearch(); };
+const performSearchMobile = () => { executeSearch(); };
 
 const toggleSearchInput = () => {
   isSearchActive.value = !isSearchActive.value;
   if (isSearchActive.value) {
-    nextTick(() => {
-      searchInputRef.value?.focus();
-    });
+    nextTick(() => searchInputRef.value?.focus());
   } else {
-    searchTerm.value = '';
+    searchQuery.value = '';
   }
 };
+
 const closeSearchInput = () => {
   isSearchActive.value = false;
-  searchTerm.value = '';
+  searchQuery.value = '';
 };
-const performSearch = () => {
-  if (!searchTerm.value) return;
-  console.log("Recherche PC lancée pour :", searchTerm.value);
-  closeSearchInput();
-};
+
 const handleSearchBlur = () => {
   setTimeout(() => {
     if (searchFormRef.value && !searchFormRef.value.contains(document.activeElement)) {
@@ -207,50 +183,80 @@ const handleSearchBlur = () => {
     }
   }, 150);
 };
-const isSearchActiveMobile = ref(false);
-const searchTermMobile = ref('');
-const searchInputMobileRef = ref(null);
+
 const toggleSearchInputMobile = () => {
   isSearchActiveMobile.value = !isSearchActiveMobile.value;
   if (isSearchActiveMobile.value) {
-    if (isProfileDropdownOpen.value && profileDropdown) profileDropdown.hide();
+    if (isProfileDropdownOpen.value) profileDropdown?.hide();
     nextTick(() => searchInputMobileRef.value?.focus());
   } else {
-    searchTermMobile.value = '';
+    searchQuery.value = '';
   }
 };
+
 const closeSearchInputMobile = () => {
   isSearchActiveMobile.value = false;
-  searchTermMobile.value = '';
+  searchQuery.value = '';
 };
-const performSearchMobile = () => {
-  if (!searchTermMobile.value) return;
-  console.log("Recherche Mobile lancée pour :", searchTermMobile.value);
-  closeSearchInputMobile();
-};
+
 const handleLogout = async () => {
   try {
-    await signOut(); 
-    console.log("Déconnexion réussie !");
+    await signOut();
   } catch (error) {
     console.error("Erreur lors de la déconnexion :", error);
   }
 };
+
 const toggleProfileDropdown = () => {
   if (profileDropdown) {
     isProfileDropdownOpen.value ? profileDropdown.hide() : profileDropdown.show();
   }
   if (isSearchActiveMobile.value) closeSearchInputMobile();
 };
+
+// --- LIFECYCLE & WATCHERS ---
+let unsubscribeWishlist = null;
+
 onMounted(() => {
+  if (route.path === '/recherche' && route.query.q) {
+    searchQuery.value = route.query.q;
+  }
   const profileDropdownElement = document.getElementById('navbarDropdownProfile');
   if (profileDropdownElement) {
     profileDropdown = new Dropdown(profileDropdownElement);
     profileDropdownElement.addEventListener('show.bs.dropdown', () => isProfileDropdownOpen.value = true);
     profileDropdownElement.addEventListener('hide.bs.dropdown', () => isProfileDropdownOpen.value = false);
   }
-  document.body.classList.toggle('dark-mode', isDarkMode.value);
 });
+
+watch(searchQuery, (newValue) => {
+  if (newValue.trim() !== '') {
+    executeSearch();
+  } else if (route.path === '/recherche') {
+    router.push('/');
+  }
+});
+
+watch(() => route.fullPath, (newPath, oldPath) => {
+  if (newPath === oldPath) return;
+
+  if (searchNavigationFlag.value) {
+    nextTick(() => {
+      if (isSearchActive.value && searchInputRef.value) {
+        searchInputRef.value.focus();
+      } else if (isSearchActiveMobile.value && searchInputMobileRef.value) {
+        searchInputMobileRef.value.focus();
+      }
+    });
+    searchNavigationFlag.value = false;
+  } 
+  else {
+    if (isProfileDropdownOpen.value) profileDropdown?.hide();
+    if (isSearchActive.value) closeSearchInput();
+    if (isSearchActiveMobile.value) closeSearchInputMobile();
+  }
+}, { flush: 'post' });
+
 const isOnCartProcessPage = computed(() => ['/panier', '/paiement', '/validation'].includes(route.path));
 const currentStep = computed(() => {
   switch (route.path) {
@@ -260,20 +266,13 @@ const currentStep = computed(() => {
     default: return 0;
   }
 });
-watch(route, () => {
-  if (isProfileDropdownOpen.value && profileDropdown) profileDropdown.hide();
-  if (isSearchActive.value) closeSearchInput();
-  if (isSearchActiveMobile.value) closeSearchInputMobile();
-});
+
 watch(() => authStore.user, (newUser) => {
   if (unsubscribeWishlist) unsubscribeWishlist();
   if (newUser) {
     const wishlistDocRef = doc(db, 'users', newUser.uid, 'privateData', 'wishlist');
     unsubscribeWishlist = onSnapshot(wishlistDocRef, (docSnap) => {
       authStore.userWishlistCount = docSnap.exists() && docSnap.data().items ? docSnap.data().items.length : 0;
-    }, (error) => {
-      console.error("Erreur d'écoute wishlist:", error);
-      authStore.userWishlistCount = 0;
     });
   } else {
     authStore.userWishlistCount = null;
@@ -282,7 +281,28 @@ watch(() => authStore.user, (newUser) => {
 </script>
 
 <style scoped>
-/* Styles pour l'animation de fondu */
+.navbar {
+  background-color: var(--background-two)!important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1030; 
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--border-separator-one);
+}
+.navbar-icon {
+  font-size: 1.6rem;
+  vertical-align: middle;
+}
+.nav-link {
+  font-weight: 500;
+  color: var(--text-one) !important;
+  margin: 0 0.5rem;
+  transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* --- ANIMATION DE FONDU --- */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
@@ -292,9 +312,13 @@ watch(() => authStore.user, (newUser) => {
   opacity: 0;
 }
 
-/* --- Barre de recherche PC --- */
+/* --- BARRE DE RECHERCHE PC --- */
 .search-icon-desktop {
   margin-right: 0.5rem;
+  background-color: transparent;
+  border: none;
+  color: var(--text-one) !important;
+  padding: 0.5rem;
 }
 .search-form {
   display: flex; 
@@ -313,15 +337,13 @@ watch(() => authStore.user, (newUser) => {
 }
 .search-input {
   flex-grow: 1;
-  background-color: var(--background-three) !important;
+  background-color: var(--interactive-comp-one) !important;
   color: var(--text-one) !important;
   border-color: var(--border-separator-one) !important;
   height: calc(1.5em + 0.75rem + 2px); 
   padding-right: 5rem;
 }
-
-.search-form .search-submit-btn,
-.search-form .search-close-btn {
+.search-form .btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -329,108 +351,72 @@ watch(() => authStore.user, (newUser) => {
   background: transparent;
   padding: 0 0.5rem;
   font-size: 1.2rem;
-  transition: right 0.3s ease;
 }
 .search-form .search-submit-btn {
-  right: 0.5rem;
-  color: var(--text-one);
-}
-.search-form.active .search-submit-btn {
   right: 2.5rem;
-  color: var(--highlight-color);
+  color: var(--text-one);
 }
 .search-form .search-close-btn {
   right: 0.5rem;
-  color: var(--danger-color);
+  color: var(--solid-one);
 }
 
-/* --- Styles pour la recherche MOBILE (overlay) --- */
-.search-form-mobile-overlay {
-  position: absolute;
+/* === BLOC DE STYLE MODIFIÉ POUR LA RECHERCHE MOBILE === */
+.search-icon-mobile {
+    background-color: transparent;
+    border: none;
+    color: var(--text-one) !important;
+    padding: 0.5rem;
+}
+.search-form-mobile {
+  position: absolute; /* Ancrage à la navbar parente */
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100%; /* Couvre uniquement la hauteur de la navbar */
   display: flex;
   align-items: center;
-  justify-content: center;
-  background-color: var(--background-two); 
-  z-index: 1031; 
+  background-color: var(--background-two); /* Même fond que la navbar */
+  z-index: 100; 
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-20%); /* Commence un peu plus haut */
-  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* Animation simple de fondu */
   padding: 0 1rem; 
 }
-.search-form-mobile-overlay.active {
+.search-form-mobile.active {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
 }
-.search-input-mobile-overlay {
+.search-input-mobile {
   flex-grow: 1;
-  background-color: var(--background-three) !important;
+  background-color: var(--interactive-comp-one) !important;
   color: var(--text-one) !important;
   border-color: var(--border-separator-one) !important;
 }
-.search-close-btn-mobile-overlay {
-  background-color: transparent;
-  border: none;
-  color: var(--danger-color);
-  font-size: 1.5rem;
-  margin-left: 0.75rem; 
-}
-.search-form-mobile-overlay .search-submit-btn {
+.search-form-mobile .search-submit-btn {
   color: var(--text-one);
   margin-left: -2.5rem;
   z-index: 5;
+  background: transparent;
+  border: none;
 }
-
-/* --- Styles Généraux --- */
-.navbar-icon {
-  font-size: 1.6rem;
-  vertical-align: middle;
-}
-.navbar {
-  background-color: var(--background-two)!important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1030; 
-  position: sticky;
-  top: 0;
-  border-bottom: var(--border-separator-one) 1px solid ;
-}
-.nav-link {
-  font-weight: 500;
-  color: var(--text-one) !important;
-  margin: 0 0.5rem;
-  transition: color 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-}
-.nav-link:hover,
-.nav-link.active {
-  color: #BEEDFF;
-}
-.search-icon-mobile,
-.search-icon-desktop {
+.search-close-btn-mobile {
   background-color: transparent;
   border: none;
-  color: var(--text-one) !important;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: color 0.3s ease;
+  color: var(--solid-one);
+  font-size: 1.5rem;
+  margin-left: 0.75rem; 
 }
-.search-icon-mobile:hover,
-.search-icon-desktop:hover { color: #BEEDFF !important; }
+/* === FIN DU BLOC MODIFIÉ === */
 
-/* Styles du menu dropdown et autres... */
+/* --- DROPDOWN PROFIL --- */
 .dropdown-toggle-no-caret::after { display: none !important; }
 .profile-dropdown-menu {
   background-color: var(--interactive-comp-two); 
-  border: none; 
+  border: 1px solid var(--border-separator-one); 
   border-radius: 8px; 
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); 
-  min-width: 200px; 
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); 
+  min-width: 220px; 
   padding: 0.5rem 0; 
 }
 .profile-dropdown-menu .dropdown-item {
@@ -440,28 +426,25 @@ watch(() => authStore.user, (newUser) => {
 }
 .profile-dropdown-menu .dropdown-item:hover,
 .profile-dropdown-menu .dropdown-item:focus {
-  background-color: var(--background-three); 
-  color: var(--highlight-color); 
+  background-color: var(--interactive-comp-three); 
+  color: var(--text-two); 
 }
-/* --- STYLES POUR LE STEPPER DE PAIEMENT STYLE INSTANT GAMING --- */
 
+/* --- STEPPER DE PAIEMENT --- */
 .ig-stepper {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 600px; /* Limite la largeur pour un meilleur aspect */
-  margin: 0 auto; /* Centre le stepper */
+  max-width: 600px;
+  margin: 0 auto;
 }
-
 .step {
   display: flex;
   align-items: center;
-  /* La couleur par défaut est celle des étapes non actives */
-  color: var(--text-secondary, #868e96); 
+  color: var(--solid-one);
   transition: color 0.3s ease;
 }
-
 .step-circle {
   width: 32px;
   height: 32px;
@@ -470,54 +453,30 @@ watch(() => authStore.user, (newUser) => {
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  font-size: 1rem;
   margin-right: 0.75rem;
-  /* Style par défaut : un simple cercle gris */
-  border: 2px solid var(--text-secondary, #868e96);
+  border: 2px solid var(--solid-one);
   background-color: transparent;
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-
 .step-label {
-  font-size: 1rem;
   font-weight: 500;
 }
-
 .step-line {
   flex-grow: 1;
   height: 2px;
-  background-color: var(--text-secondary, #868e96);
-  margin: 0 1.5rem; /* Espace la ligne des étapes */
+  background-color: var(--solid-one);
+  margin: 0 1.5rem;
   transition: background-color 0.3s ease;
 }
-
-
-/* --- GESTION DES ÉTATS ACTIFS ET COMPLÉTÉS --- */
-
-/* Style pour une étape ACTIVE (celle en cours) */
-.step.active {
-  color: var(--text-one, #ffffff); /* Texte blanc/brillant */
+.step.active, .step.completed {
+  color: var(--text-two);
 }
-
-.step.active .step-circle {
-  background-color: var(--text-one, #ffffff);
-  border-color: var(--text-one, #ffffff);
-  color: var(--background-two, #121212); /* Texte noir sur fond blanc */
+.step.active .step-circle, .step.completed .step-circle {
+  background-color: var(--text-one);
+  border-color: var(--text-one);
+  color: var(--background-two);
 }
-
-/* Style pour une étape COMPLÉTÉE (les précédentes) */
-.step.completed {
-    color: var(--text-one, #ffffff); /* Le texte reste blanc */
-}
-.step.completed .step-circle {
-    /* Le cercle reste blanc, comme pour une étape active */
-    background-color: var(--text-one, #ffffff);
-    border-color: var(--text-one, #ffffff);
-    color: var(--background-two, #121212);
-}
-
-/* Style pour une ligne COMPLÉTÉE */
 .step-line.completed {
-  background-color: var(--text-one, #ffffff); /* La ligne devient blanche */
+  background-color: var(--text-one);
 }
 </style>
