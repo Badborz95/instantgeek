@@ -35,7 +35,7 @@
         </div>
         <div class="buttons">
           <button class="favorite">favoris</button>
-          <button class="cart">
+          <button class="cart" @click="ajouterAuPanier">
             <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
               Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
               https://fontawesome.com/license/free
@@ -86,7 +86,7 @@
             </div>
             <div class="buttons">
               <button class="favorite">favoris</button>
-              <button class="cart">
+              <button class="cart" @click="ajouterAuPanier">
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
                   https://fontawesome.com/license/free
@@ -120,8 +120,9 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
+import { useCartStore } from '../stores/cartStore'
 
-
+const cartStore = useCartStore()
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
 const game = ref(null)
@@ -151,6 +152,15 @@ const fetchGameById = async (id) => {
   } catch (error) {
     console.error('Erreur lors de la récupération du jeu :', error)
   }
+}
+
+function ajouterAuPanier() {
+  cartStore.addItem({
+    id: game.value.id,
+    name: game.value.titre,
+    image: game.value.hero,
+    price: parseFloat(game.value.price),
+  })
 }
 
 onMounted(() => {
@@ -319,14 +329,14 @@ onUnmounted(() => {
 }
 
 .description {
-    height: auto;
-    background-color: var(--background-two);
-    padding: 20px 50px;
-  }
+  height: auto;
+  background-color: var(--background-two);
+  padding: 20px 50px;
+}
 
-  .description h3{
-    margin-bottom: 30px;
-  }
+.description h3 {
+  margin-bottom: 30px;
+}
 
 /*VERSION DESKTOP*/
 @media (min-width: 768px) {
