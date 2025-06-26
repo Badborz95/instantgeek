@@ -14,6 +14,9 @@
                     </div>
                 </li>
             </ul>
+            <div v-if="games.length === 0" class="text-center mt-2">
+                <h4>Aucun jeu trouvé pour cette recherche.</h4>
+            </div>
         </div>
     </div>
 </template>
@@ -70,8 +73,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
-h1, p{
+h1,
+p {
     text-align: center;
 }
 
@@ -103,7 +106,8 @@ a {
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     padding: 0;
-    max-width: 1300px; /* ou 1200px selon votre préférence */
+    max-width: 1300px;
+    /* ou 1200px selon votre préférence */
     margin: 0 auto;
 }
 
@@ -147,21 +151,22 @@ a {
     justify-content: space-between;
 }
 
-.dateSortie{
+.dateSortie {
     text-align: start;
 }
 
 @media (min-width: 1250px) {
 
-    h1, p{
-    text-align: start;
-    margin-left: 50px;
-}
+    h1,
+    p {
+        text-align: start;
+        margin-left: 50px;
+    }
 
-.dateSortie{
-    text-align: start;
-    margin: 0px;
-}
+    .dateSortie {
+        text-align: start;
+        margin: 0px;
+    }
 
     #precoIn {
         overflow-x: visible;
@@ -170,7 +175,8 @@ a {
         margin-left: auto;
         margin-right: auto;
         gap: 50px;
-        padding: 0 80px; /* Plus d'espace sur grand écran */
+        padding: 0 80px;
+        /* Plus d'espace sur grand écran */
     }
 
     .game-card {

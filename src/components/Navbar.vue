@@ -126,6 +126,10 @@ const toggleCollapse = () => {
 .navbar {
   background-color: var(--background-two)!important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000; 
+  border-bottom: var(--border-separator-one) 1px solid ;
 }
 
 .nav-link {
