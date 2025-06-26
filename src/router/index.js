@@ -10,6 +10,7 @@ import Inscription from '../views/Inscription.vue';
 import Connexion from '../views/Connexion.vue';
 import GameDetail from '../views/GameDetailPage.vue';
 import NotFound from '../views/Page404.vue';
+import Recherche from '../views/Recherche.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,6 +44,21 @@ const router = createRouter({
         path: '/connexion',
         name: 'connexion', // Ajout d'un nom pour la route de connexion
         component: Connexion 
+    },
+    {
+        path: '/game/:id',
+        name: 'gameDetailPage',
+        component: GameDetail
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
+    },
+    {
+      path: '/recherche',
+      name: 'recherche',
+      component: Recherche
     },
     {
         path: '/game/:id',
