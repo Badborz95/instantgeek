@@ -60,8 +60,7 @@
           <li class="nav-item"><router-link class="nav-link" to="/nouveautes">Nouveautés</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/precommandes">Précommandes</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/prochaines-sorties">Prochaines sorties</router-link></li>
-        </ul>
-        
+        </ul>   
 <!-- Icônes et actions de droite -->
         <div class="d-flex align-items-center ms-auto">
           
@@ -70,6 +69,7 @@
               <i class="bi bi-search navbar-icon"></i>
             </button>
           </transition>
+
 
           <transition name="fade">
             <button v-if="!isSearchActive" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
@@ -161,6 +161,7 @@ const executeSearch = () => {
 
 const performSearch = () => { executeSearch(); };
 const performSearchMobile = () => { executeSearch(); };
+
 
 const toggleSearchInput = () => {
   isSearchActive.value = !isSearchActive.value;
