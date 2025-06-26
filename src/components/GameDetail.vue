@@ -308,10 +308,15 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-evenly;
   height: 80px;
-  background-color: var(--text-one);
-  border: 0;
+  background: var(--text-one);
   border-radius: 2em;
   border: solid 1px black;
+  transition: background-color 0.3s, color 0.3s;
+  font-weight: bold;
+}
+
+.cart:hover {
+  background: var(--text-two);
 }
 
 .cart>svg {
