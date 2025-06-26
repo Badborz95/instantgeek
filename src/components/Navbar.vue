@@ -64,20 +64,6 @@
           <li class="nav-item"><router-link class="nav-link" to="/prochaines-sorties">Prochaines sorties</router-link></li>
         </ul>
         <div class="d-flex align-items-center">
-          <form class="d-flex me-3" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Rechercher..."
-              aria-label="Search"
-              v-model="searchQuery"
-              ref="searchInput"
-            />
-            <button class=" d-none d-lg-flex btn btn-outline-secondary" type="submit">
-              <i class="bi bi-search"></i>
-            </button>
-            </form>
-
           <transition name="fade">
             <button v-if="!isSearchActive" key="search-icon" class="btn btn-outline-secondary d-none d-lg-block search-icon-desktop" type="button" @click="toggleSearchInput">
               <i class="bi bi-search navbar-icon"></i>
@@ -90,8 +76,8 @@
                   type="search" 
                   placeholder="Rechercher..." 
                   aria-label="Search"
-                  v-model="searchTerm"
                   ref="searchInputRef"
+                  v-model="searchQuery"
                   @blur="handleSearchBlur"
               >
               <button class="btn search-submit-btn" type="submit"><i class="bi bi-search"></i></button>
@@ -145,10 +131,16 @@ import { db } from '../firebase';
 const router = useRouter();
 const route = useRoute();
 searchQuery.value = route.query.q || '';
-
 const searchInput = ref(null);
-
 const searchTriggered = ref(false); // <-- Ajout du flag
+const authStore = useAuthStore(); 
+const isProfileDropdownOpen = ref(false); 
+let profileDropdown = null; 
+let unsubscribeWishlist = null; 
+const isSearchActive = ref(false); 
+const searchTerm = ref('');
+const searchInputRef = ref(null);
+const searchFormRef = ref(null);
 
 watch(searchQuery, (newValue) => {
   if (newValue !== '') {
@@ -170,17 +162,6 @@ watch(
   }
 );
 
-const route = useRoute();
-const authStore = useAuthStore(); 
-const isProfileDropdownOpen = ref(false); 
-let profileDropdown = null; 
-let unsubscribeWishlist = null; 
-const isSearchActive = ref(false); 
-const searchTerm = ref('');
-const searchInputRef = ref(null);
-const searchFormRef = ref(null);
-
-const isDarkMode = ref(true); 
 
 const toggleSearchInput = () => {
   isSearchActive.value = !isSearchActive.value;
@@ -250,7 +231,7 @@ onMounted(() => {
     profileDropdownElement.addEventListener('show.bs.dropdown', () => isProfileDropdownOpen.value = true);
     profileDropdownElement.addEventListener('hide.bs.dropdown', () => isProfileDropdownOpen.value = false);
   }
-  document.body.classList.toggle('dark-mode', isDarkMode.value);
+
 });
 const isOnCartProcessPage = computed(() => ['/panier', '/paiement', '/validation'].includes(route.path));
 const currentStep = computed(() => {
@@ -266,6 +247,7 @@ watch(route, () => {
   if (isSearchActive.value) closeSearchInput();
   if (isSearchActiveMobile.value) closeSearchInputMobile();
 });
+
 watch(() => authStore.user, (newUser) => {
   if (unsubscribeWishlist) unsubscribeWishlist();
   if (newUser) {
