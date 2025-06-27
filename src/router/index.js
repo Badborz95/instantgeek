@@ -12,6 +12,7 @@ import Panier from '../views/Panier.vue';
 import GameDetail from '../views/GameDetailPage.vue';
 import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
+import Parametres from '../views/Parametres.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,13 +39,18 @@ const router = createRouter({
     },
     { 
         path: '/inscription',
-        name: 'inscription', // Ajout d'un nom pour la route d'inscription
+        name: 'inscription', 
         component: Inscription 
     },
     { 
         path: '/connexion',
-        name: 'connexion', // Ajout d'un nom pour la route de connexion
+        name: 'connexion', 
         component: Connexion 
+    },
+    {
+    path: '/parametres',
+    name: 'Parametres',
+    component: Parametres,
     },
     {
         path: '/panier',
