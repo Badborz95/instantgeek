@@ -57,7 +57,6 @@ onMounted(() => {
   fetchAllGames();
 });
 
-console.log('Résultat Firestore:', games.value);
 </script>
 
 

@@ -91,11 +91,11 @@ const imageHero = [
 
 // Informations sur les jeux
 const gameInfo = ref([
-  { name: 'Grand Thief Auto VI', description: 'lorem ipsum', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
-  { name: 'Metaphor: ReFantazio', description: 'lorem ipsum', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
-  { name: 'Elden Ring Nightrein', description: 'lorem ipsum', price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
-  { name: 'The Last of Us Part II REMASTERED', description: 'lorem ipsum', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
-  { name: 'Clair Obscur : Expédition 33', description: 'lorem ipsum', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
+  { name: 'Grand Thief Auto VI', description: 'Comme toujours, le jeu se déroule dans un monde ouvert, dans une version fictive de Miami, en Floride, appelée Vice City, Leonida...', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
+  { name: 'Metaphor: ReFantazio', description: 'Les créateurs de Persona 3, 4 et 5 ont donné naissance à Metaphor: ReFantazio. Préparez-vous à la prochaine évolution du JRPG fantastique...', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
+{ name: 'Elden Ring Nightrein', description: "ELDEN RING NIGHTREIGN est une aventure indépendante se déroulant dans l'univers d'ELDEN RING, conçue pour offrir...", price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
+  { name: 'The Last of Us Part II REMASTERED', description: 'Cinq ans après leur périlleux voyage à travers une Amérique ravagée par une pandémie...', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
+  { name: 'Clair Obscur : Expédition 33', description: 'Une fois par an, la Peintresse se réveille. Sur son Monolithe, elle peint son nombre maudit...', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
 ]);
 
 const currentIndex = ref(0);
