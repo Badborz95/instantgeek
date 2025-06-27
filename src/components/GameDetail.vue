@@ -86,7 +86,7 @@
             </div>
             <div class="buttons">
               <button class="favorite">favoris</button>
-              <button class="cart" @click="ajouterAuPanier">
+              <button class="cart" @click="ajouterAuPanier" >
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
                   https://fontawesome.com/license/free
@@ -111,6 +111,7 @@
   <div v-else>
     <p>Chargement du jeu...</p>
   </div>
+  
 </template>
 
 <script setup>

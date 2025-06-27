@@ -50,7 +50,7 @@ const fetchSimilarGames = async () => {
         const data = docSnap.data()
         const gameTags = data.tag || []
 
-        if (docSnap.id !== props.currentGameId) {
+        if (docSnap.id !== props.currentGameId)/*empêche de récupérer le même jeu*/ {
             // Vérifie le nombre de tags en commun
             const commonTags = gameTags.filter(tag => props.tags.includes(tag))
             if (commonTags.length >= 2) { //Ajoute aux jeux récupérés uniquement ceux qui en ont au moins 3 en commun
