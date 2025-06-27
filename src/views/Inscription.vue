@@ -49,6 +49,7 @@
               aria-label="Prénom"
             />
           </div>
+
           <div class="form-group mb-3 text-start">
             <label for="birthdate" class="form-label text-uppercase text-white-50">Date de naissance</label>
             <input
@@ -60,17 +61,23 @@
               aria-label="Date de naissance"
             />
           </div>
+
           <div class="form-group mb-4 text-start">
             <label for="country" class="form-label text-uppercase text-white-50">Pays</label>
-            <input
+            <select
               id="country"
               v-model="country"
-              type="text"
               class="form-control login-input"
               required
               aria-label="Pays"
-            />
+            >
+              <option disabled value="">Veuillez sélectionner un pays</option>
+              <option v-for="c in countriesList" :key="c.cca3" :value="c.name.common">
+                {{ c.name.common }}
+              </option>
+            </select>
           </div>
+          
           <button type="submit" class="btn login-btn w-100">valider</button>
         </form>
 
@@ -96,10 +103,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+// NOUVEAU : Import de onMounted pour charger les pays au démarrage
+import { ref, onMounted } from 'vue';
 import { signUp, signInWithGoogle } from '../services/authService';
 import { useRouter } from 'vue-router';
-import { db } from '../firebase'; // Make sure the path is correct to your firebase.js file
+import { db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
 
 // Variables for form fields
@@ -110,9 +118,45 @@ const firstname = ref('');
 const birthdate = ref('');
 const country = ref('');
 
+// NOUVEAU : Une variable réactive pour stocker la liste des pays
+const countriesList = ref([]);
+
 const router = useRouter();
 
+// NOUVEAU : Une fonction pour récupérer la liste des pays depuis une API externe
+async function fetchCountries() {
+  try {
+    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3');
+    if (!response.ok) throw new Error('Failed to fetch countries');
+    const data = await response.json();
+    // Trie les pays par ordre alphabétique pour une meilleure expérience
+    countriesList.value = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
+  } catch (error) {
+    console.error(error.message);
+    // En cas d'erreur, la liste restera simplement vide.
+  }
+}
+
+// NOUVEAU : Exécute la fonction fetchCountries une fois que le composant est monté
+onMounted(() => {
+  fetchCountries();
+});
+
+// MODIFIÉ : La fonction handleSignUp inclut maintenant la vérification de l'âge
 async function handleSignUp() {
+
+  // NOUVEAU : Bloc de vérification de l'âge.
+  // Ce code s'exécute AVANT toute interaction avec Firebase.
+  const today = new Date();
+  const birthDate = new Date(birthdate.value);
+  const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+
+  if (birthDate > eighteenYearsAgo) {
+    alert('Vous devez avoir au moins 18 ans pour vous inscrire.');
+    return; // Stoppe l'exécution de la fonction si l'utilisateur est mineur.
+  }
+
+  // Le reste de votre code original reste inchangé.
   try {
     const user = await signUp(email.value, password.value);
 
@@ -139,7 +183,7 @@ async function handleSignUp() {
 async function handleGoogleSignIn() {
   try {
     const user = await signInWithGoogle();
-    alert('Connexion Google réussie !'); // Ajout d'un alert pour la démonstration
+    alert('Connexion Google réussie !');
     router.push('/');
   } catch (e) {
     alert('Erreur avec Google : ' + e.message);

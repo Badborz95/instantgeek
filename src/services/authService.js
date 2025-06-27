@@ -5,11 +5,14 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   sendPasswordResetEmail as firebaseSendPasswordResetEmail,
-  updateProfile // ✅ AMÉLIORATION : Importer updateProfile
+  updateProfile,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  deleteUser
 } from 'firebase/auth';
 
 import { auth, db } from '../firebase';
-import { setDoc, doc, getDoc } from 'firebase/firestore';
+import { setDoc, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 /**
  * ✅ Inscription avec email/mot de passe
@@ -92,4 +95,56 @@ export async function signOut() {
  */
 export async function sendPasswordResetEmail(email) {
   await firebaseSendPasswordResetEmail(auth, email);
+}
+
+/**
+ * ✅ Supprime le compte de l'utilisateur actuellement connecté.
+ * Nécessite le mot de passe de l'utilisateur pour se ré-authentifier.
+ * @param {string} password - Le mot de passe actuel de l'utilisateur.
+ */
+export async function deleteUserAccount(password) {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("Aucun utilisateur n'est actuellement connecté.");
+  }
+
+  // 1. Créer une "crédential" pour prouver l'identité de l'utilisateur
+  const credential = EmailAuthProvider.credential(user.email, password);
+
+  // 2. Ré-authentifier l'utilisateur. C'est une exigence de sécurité de Firebase.
+  await reauthenticateWithCredential(user, credential);
+
+  // Si la ré-authentification réussit, on peut continuer.
+  const userId = user.uid;
+
+  // 3. Supprimer le document de l'utilisateur dans Firestore
+  const userDocRef = doc(db, 'users', userId);
+  await deleteDoc(userDocRef);
+
+  // 4. Supprimer l'utilisateur de Firebase Authentication
+  await deleteUser(user);
+}
+/**
+ * ✅ Met à jour les informations du profil d'un utilisateur.
+ * @param {string} uid - L'ID de l'utilisateur à mettre à jour.
+ * @param {object} dataToUpdate - Un objet avec les champs à mettre à jour (ex: { firstname: 'NouveauPrénom' }).
+ */
+export async function updateUserProfile(uid, dataToUpdate) {
+  if (!uid) throw new Error("UID de l'utilisateur non fourni.");
+
+  const userDocRef = doc(db, 'users', uid);
+  
+  // 1. Mettre à jour le document dans Firestore
+  await updateDoc(userDocRef, dataToUpdate);
+
+  // 2. Si le nom d'affichage (displayName) est mis à jour, le mettre aussi à jour dans le profil Auth
+  if (dataToUpdate.displayName) {
+    const user = auth.currentUser;
+    if (user) {
+      await updateProfile(user, {
+        displayName: dataToUpdate.displayName
+      });
+    }
+  }
 }
