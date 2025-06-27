@@ -504,4 +504,5 @@ watch(() => authStore.user, (newUser) => {
 .step-line.completed {
   background-color: var(--text-one);
 }
+
 </style>

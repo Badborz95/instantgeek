@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid py-2 preco">
+    <div class="container-fluid py-2 preco" id="main-content">
         <div>
             <h1 class="mt-3 mb-5">Recherche</h1>
             <form id="filter">
