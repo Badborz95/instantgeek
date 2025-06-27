@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid ">
+  <div class="container-fluid " id="main-content">
     <div class="row justify-content-center">
       <div class="col-12 col-md-10 col-lg-8 p-0 w-100 ">
         <div class="carousel-container mx-auto" :style="{
