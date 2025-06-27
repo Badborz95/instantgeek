@@ -86,7 +86,7 @@
             </div>
             <div class="buttons">
               <button class="favorite">favoris</button>
-              <button class="cart" @click="ajouterAuPanier" >
+              <button class="cart" @click="ajouterAuPanier">
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
                   https://fontawesome.com/license/free
@@ -111,7 +111,7 @@
   <div v-else>
     <p>Chargement du jeu...</p>
   </div>
-  
+
 </template>
 
 <script setup>
@@ -122,7 +122,9 @@ import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
 import { useCartStore } from '../stores/cartStore'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const cartStore = useCartStore()
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
@@ -161,6 +163,10 @@ function ajouterAuPanier() {
     name: game.value.titre,
     image: game.value.hero,
     price: parseFloat(game.value.price),
+  })
+  toast.success('Jeu ajouté au panier !', {
+    timeout: 3000,
+    position: 'bottom-right'
   })
 }
 
