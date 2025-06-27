@@ -53,6 +53,7 @@
             ref="searchInputMobileRef"
           >
           <button class="btn search-filter-btn-mobile" type="button" @click="goToSearch"><i class="bi bi-filter"></i></button>
+
           <button class="btn search-close-btn-mobile" type="button" @click="closeSearchInputMobile"><i class="bi bi-x-lg"></i></button>
         </form>
 
@@ -153,11 +154,9 @@ const searchFormRef = ref(null);
 const isSearchActiveMobile = ref(false);
 const searchInputMobileRef = ref(null);
 
-
 const goToSearch = () =>{
   router.push({path: '/recherche'});
 }
-
 const executeSearch = () => {
   if (searchQuery.value.trim() !== '' && route.query.q !== searchQuery.value.trim()) {
     searchNavigationFlag.value = true;
@@ -239,6 +238,8 @@ onMounted(() => {
 watch(searchQuery, (newValue) => {
   if (newValue.trim() !== '') {
     executeSearch();
+  } else if (route.path === '/recherche') {
+    router.push('/');
   }
 });
 
@@ -425,6 +426,11 @@ watch(() => authStore.user, (newUser) => {
   color: var(--solid-one);
   font-size: 1.8rem;
   margin-left: 0.5rem; 
+  background-color: transparent;
+  border: none;
+  color: var(--solid-one);
+  font-size: 1.5rem;
+  margin-left: 0.75rem; 
 }
 /* === FIN DU BLOC MODIFIÉ === */
 
