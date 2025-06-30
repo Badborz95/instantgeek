@@ -73,7 +73,11 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { auth, db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { deleteUserAccount, updateUserProfile } from '../services/authService';
+import { 
+  deleteEmailPasswordUser, 
+  deleteOauthUser, 
+  updateUserProfile 
+} from '../services/authService';
 
 const router = useRouter();
 const user = auth.currentUser;
@@ -82,15 +86,32 @@ const user = auth.currentUser;
 const firstname = ref('');
 const username = ref('');
 const country = ref('');
-
-// Référence pour la liste des pays
 const countriesList = ref([]);
+
+// Référence pour connaître le type de connexion de l'utilisateur
+const providerId = ref('');
 
 // Références pour les messages de feedback
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// Fonction pour charger la liste des pays depuis l'API
+// Charge les données au montage du composant
+onMounted(async () => {
+  if (user) {
+    providerId.value = user.providerData[0]?.providerId || '';
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data();
+      firstname.value = userData.firstname || '';
+      username.value = userData.username || '';
+      country.value = userData.country || '';
+    }
+  }
+  await fetchCountries();
+});
+
+// Charge la liste des pays
 async function fetchCountries() {
   try {
     const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3');
@@ -102,78 +123,66 @@ async function fetchCountries() {
   }
 }
 
-// Au chargement du composant, on charge les données de l'utilisateur ET la liste des pays
-onMounted(async () => {
-  if (user) {
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data();
-      firstname.value = userData.firstname || '';
-      username.value = userData.username || '';
-      country.value = userData.country || '';
-    }
-  }
-  // On charge aussi la liste des pays
-  await fetchCountries();
-});
-
-// Fonction pour sauvegarder les modifications du profil
+// Sauvegarde les modifications du profil
 async function handleUpdateProfile() {
   successMessage.value = '';
   errorMessage.value = '';
-
   if (!user) {
     errorMessage.value = "Utilisateur non trouvé.";
     return;
   }
-
   const dataToUpdate = {
     firstname: firstname.value,
     username: username.value,
     country: country.value,
     displayName: `${firstname.value} ${username.value}`
   };
-
   try {
     await updateUserProfile(user.uid, dataToUpdate);
     successMessage.value = "Vos informations ont été mises à jour avec succès !";
   } catch (e) {
-    console.error("Erreur lors de la mise à jour du profil:", e);
     errorMessage.value = "Une erreur est survenue lors de la mise à jour.";
+    console.error(e);
   }
 }
 
-// Fonction pour le bouton "Retour"
-function goBack() {
-  router.back();
-}
-
-// Fonction pour supprimer le compte utilisateur
+// Gère la suppression du compte en fonction du type d'utilisateur
 async function handleDeleteAccount() {
   errorMessage.value = '';
   const isConfirmed = confirm("Êtes-vous absolument certain de vouloir supprimer votre compte ? Cette action est irréversible.");
   if (!isConfirmed) return;
-  
-  const password = prompt("Pour confirmer la suppression, veuillez entrer votre mot de passe :");
-  if (!password) {
-    errorMessage.value = "La suppression a été annulée. Mot de passe non fourni.";
-    return;
-  }
 
   try {
-    await deleteUserAccount(password);
+    if (providerId.value === 'password') {
+      const password = prompt("Pour confirmer, veuillez entrer votre mot de passe :");
+      if (!password) {
+        errorMessage.value = "La suppression a été annulée. Mot de passe non fourni.";
+        return;
+      }
+      await deleteEmailPasswordUser(password);
+    } else if (providerId.value === 'google.com' || providerId.value === 'facebook.com') {
+      alert("Une fenêtre va s'ouvrir pour confirmer votre identité via " + providerId.value + " avant la suppression.");
+      await deleteOauthUser();
+    } else {
+      throw new Error("Type de compte non pris en charge pour la suppression automatique.");
+    }
     alert("Votre compte a été supprimé avec succès.");
     router.push('/');
   } catch (e) {
     console.error("Erreur lors de la suppression du compte:", e);
     if (e.code === 'auth/wrong-password') {
       errorMessage.value = "Mot de passe incorrect. La suppression a été annulée.";
+    } else if (e.code === 'auth/popup-closed-by-user') {
+      errorMessage.value = "La fenêtre de confirmation a été fermée. La suppression est annulée.";
     } else {
       errorMessage.value = "Une erreur est survenue lors de la suppression du compte.";
     }
   }
+}
+
+// Navigation retour
+function goBack() {
+  router.back();
 }
 </script>
 
@@ -186,7 +195,6 @@ async function handleDeleteAccount() {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
-
 .card {
   background-color: var(--background-two, #0E181C);
   border: 1px solid var(--border-separator-one, #024457);
@@ -260,7 +268,7 @@ hr {
 
 .btn-primary {
     background-color: var(--solid-one, #50A0BD);
-    color: var(--text-high-contrast, #FFFFFF);
+    color: black;
 }
 .btn-primary:hover {
     background-color: var(--solid-two, #4394B0);

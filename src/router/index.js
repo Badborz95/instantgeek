@@ -14,6 +14,8 @@ import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
 import Parametres from '../views/Parametres.vue';
 import Wishlist from '../views/Wishlist.vue'
+import Paiement from '../views/Paiement.vue';
+import ValidationPaiement from '../views/ValidationPaiement.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,9 +53,14 @@ const router = createRouter({
     {
     path: '/parametres',
     name: 'Parametres',
-    component: Parametres,
+    component: Parametres, 
     },
     {
+        path: '/ValidationPaiement',
+        name: 'ValidationPaiement',
+        component: ValidationPaiement
+    },
+        {
         path: '/panier',
         name: 'panier',
         component: Panier
@@ -77,6 +84,11 @@ const router = createRouter({
         path: '/game/:id',
         name: 'gameDetailPage',
         component: GameDetail
+    },
+        {
+        path: '/paiement',
+        name: 'paiement',
+        component: Paiement
     },
     {
         path: '/:pathMatch(.*)*',

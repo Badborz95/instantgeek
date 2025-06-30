@@ -147,7 +147,7 @@ footer {
   text-align: center;
   /* Styles cosmétiques existants */
   background-color: var(--solid-one);
-  color: var(--text-high-contrast);;
+  color: black;
   border-radius: 20px;
   padding: 0.5rem 1rem;
   cursor: pointer;

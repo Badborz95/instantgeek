@@ -48,9 +48,9 @@
             </p>
           </div>
 
-          <button class="btn-validate" :disabled="cartStore.items.length === 0">
-            VALIDER MA COMMANDE
-          </button>
+<button class="btn-validate" :disabled="cartStore.items.length === 0" @click="goToPaiement">
+  VALIDER MA COMMANDE
+</button>
           <router-link to="/" class="btn btn-continue-shopping mt-3">
             Continuer mes achats
           </router-link>
@@ -67,6 +67,12 @@ import { useRouter } from 'vue-router';
 
 const cartStore = useCartStore();
 const router = useRouter();
+
+function goToPaiement() {
+  if (cartStore.items.length > 0) {
+    router.push('/paiement');
+  }
+}
 </script>
 
 <style scoped>

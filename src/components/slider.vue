@@ -34,18 +34,18 @@
             </div>
           </div>
           <div class="controls d-flex justify-content-between mt-3">
-            <button class="btn" @click="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <button type="button" class="btn btn_slider" @click="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true">prev</span>
             </button>
-            <button class="btn" @click="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <button type="button" class="btn btn_slider" @click="next">
+              <span class="carousel-control-next-icon" aria-hidden="true">next</span>
             </button>
           </div>
           <div class="game-info mt-3">
             <h2>{{ gameInfo[currentIndex].name }}</h2>
             <p>{{ gameInfo[currentIndex].description }}</p>
             <p>{{ gameInfo[currentIndex].price }}</p>
-            <a class="btn btn-page me-2">Acheter</a>
+            <a href="#" class="btn btn-page me-2">Acheter</a>
             <a :href="gameLink[currentIndex].src" target="_blank" class="btn btn-page me-2">Page du jeu</a>
             <a class="btn btn-danger" @click="toggleWishlist">
               <img
@@ -67,11 +67,11 @@ const wishlistStore = useWishlistStore();
 
 //Importation des images
 const imagesPrevu = ref([
-  { src: '/assets/img/icon/gtavi.png', alt: 'Image 1' },
-  { src: '/assets/img/icon/metaphor.png', alt: 'Image 2' },
-  { src: '/assets/img/icon/nightrein.png', alt: 'Image 3' },
-  { src: '/assets/img/icon/TLOU2.jpg', alt: 'Image 4' },
-  { src: '/assets/img/icon/Clair_Obscur.jpg', alt: 'Image 5' }
+  { src: '/assets/img/icon/gtavi.png', alt: 'Image GTA 6' },
+  { src: '/assets/img/icon/metaphor.png', alt: 'Image Metaphor :  Re Fantazio' },
+  { src: '/assets/img/icon/nightrein.png', alt: 'Image Elden Ring Nightreign' },
+  { src: '/assets/img/icon/TLOU2.jpg', alt: 'Image The last of us Part 2' },
+  { src: '/assets/img/icon/Clair_Obscur.jpg', alt: 'Image Clair obscur' }
 ]);
 
 // Liens des jeux
@@ -294,7 +294,7 @@ const toggleWishlist = () => {
   right: 0;
   display: flex;
   justify-content: space-between;
-  transform: translateY(-150%);
+  transform: translateY(-180%);
   z-index: 3;
 }
 
@@ -305,7 +305,7 @@ const toggleWishlist = () => {
 
 .btn-page {
   background-color: var(--solid-one);
-  color: var(--text-high-contrast);
+  color: black;
   text-decoration: none;
   border: none;
 }
@@ -351,6 +351,10 @@ const toggleWishlist = () => {
   border-radius: 12px;
   padding: 15px;
 }
+
+  .btn_slider{
+    color: transparent;
+  }
 
 
 @media (min-width: 1200px) {
