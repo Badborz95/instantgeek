@@ -86,7 +86,7 @@
             </div>
             <div class="buttons">
               <button class="favorite">favoris</button>
-              <button class="cart" @click="ajouterAuPanier" >
+              <button class="cart" @click="ajouterAuPanier">
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
                   https://fontawesome.com/license/free
@@ -101,17 +101,14 @@
 
         </div>
       </div>
-      <div class="description">
-        <h3>Description</h3>
-        {{ game.description }}
-      </div>
+
     </div>
     <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
   <div v-else>
     <p>Chargement du jeu...</p>
   </div>
-  
+
 </template>
 
 <script setup>
@@ -122,7 +119,9 @@ import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
 import { useCartStore } from '../stores/cartStore'
+import { useToast } from 'vue-toastification'
 
+const toast = useToast()
 const cartStore = useCartStore()
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
@@ -161,6 +160,10 @@ function ajouterAuPanier() {
     name: game.value.titre,
     image: game.value.hero,
     price: parseFloat(game.value.price),
+  })
+  toast.success('Jeu ajouté au panier !', {
+    timeout: 3000,
+    position: 'bottom-right'
   })
 }
 
@@ -207,6 +210,7 @@ onUnmounted(() => {
   background-repeat: no-repeat;
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
   padding: 0;
+  padding-bottom: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -225,8 +229,8 @@ onUnmounted(() => {
 }
 
 .tags {
-  width: 50%;
-  justify-self: flex-end;
+  width: 80%;
+  justify-self: center;
   margin-bottom: 5px;
 }
 
@@ -244,8 +248,8 @@ onUnmounted(() => {
 }
 
 .synopsis {
-  width: 50%;
-  justify-self: flex-end;
+  width: 70%;
+  justify-self: center;
 }
 
 .title,
@@ -396,10 +400,12 @@ onUnmounted(() => {
 
   .tags {
     width: 60%;
+    justify-self: flex-end;
   }
 
   .synopsis {
     width: 70%;
+    justify-self: flex-end;
   }
 
   .game-info {
