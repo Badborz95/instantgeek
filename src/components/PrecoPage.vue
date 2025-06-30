@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid py-2 preco">
+    <div class="container-fluid py-2 preco" id="main-content">
         <div>
             <h1 class="mt-3">Précommandes</h1>
             <p class="mb-5">Réservez dès maintenant les articles à venir.</p>

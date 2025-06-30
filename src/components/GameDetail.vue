@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid py-2 gameDetail" v-if="game">
+  <div class="container-fluid py-2 gameDetail" v-if="game" id="main-content">
 
 
     <div v-if="isMobile">

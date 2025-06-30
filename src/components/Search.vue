@@ -1,9 +1,9 @@
 <template>
-    <div class="container-fluid py-2 preco">
+    <div class="container-fluid py-2 preco" id="main-content">
         <div>
             <h1 class="mt-3 mb-5">Recherche</h1>
-            <form id="filter" action="" >
-                <select v-model="selectedPlatform" @change="filterGames">
+            <form id="filter">
+                <select v-model="selectedPlatform" @change="filterGames" class="form-select" aria-label="Filtre plateforme">
                     <option value="">Systèmes</option>
                     <option value="Steam">Steam</option>
                     <option value="Switch">Nintendo Switch</option>
@@ -11,7 +11,7 @@
                     <option value="Xbox">Xbox Series</option>
                 </select>
 
-                <select v-model="selectedGenre" @change="filterGames">
+                <select v-model="selectedGenre" @change="filterGames" class="form-select" aria-label="Filtre genres">
                     <option value="">Genres</option>
                     <option value="Action">Action</option>
                     <option value="Aventure">Aventure</option>
@@ -34,9 +34,9 @@
 
                 <div class ="price">
                     <span>Entre</span>
-                    <input type="number" v-model="selectedPriceMin" placeholder="Prix min" @input="filterGames" />
+                    <input type="number" v-model="selectedPriceMin" placeholder="Prix min" @input="filterGames" class="form-control" aria-label="prix minimum"/>
                     <span>à</span>
-                    <input type="number" v-model="selectedPriceMax" placeholder="Prix max" @input="filterGames" />
+                    <input type="number" v-model="selectedPriceMax" placeholder="Prix max" @input="filterGames" class="form-control" aria-label="prix maximum"/>
                     <span>€</span>
                 </div>
             </form>
@@ -233,6 +233,84 @@ a {
     text-align: start;
 }
 
+#filter {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: var(--interactive-comp-two) var(--interactive-comp-one);
+  scroll-snap-type: inline mandatory;
+  scroll-padding-inline: 30px;
+  padding-bottom: 10px;
+  flex-wrap: nowrap;
+}
+
+#filter > * {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+}
+
+.form-select {
+  --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  display: block;
+  width: 40%;
+  padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--text-high-contrast);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: var(--interactive-comp-one);
+  background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  border: var(--bs-border-width) solid var(--border-separator-one);
+  border-radius: var(--bs-border-radius);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  margin-top: 10px;
+}
+
+.form-select:hover {
+  border-color: var(--border-separator-two);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.price input {
+  min-width: 70px;
+  max-width: 90px;
+  width: 90px;
+  padding: 0.25rem 0.5rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background-color: var(--interactive-comp-one);
+  border: var(--bs-border-width) solid var(--border-separator-one);
+  color: var(--text-high-contrast);
+}
+
+.price input:hover {
+  border-color: var(--border-separator-two);
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.price input::placeholder {
+  color: var(--text-high-contrast);
+  opacity: 0.5; 
+}
+
 @media (min-width: 1250px) {
 
     h1,
@@ -265,6 +343,17 @@ a {
 
     .game-text {
         font-size: 1.3em;
+    }
+
+    .form-select{
+        width: 15%;
+    }
+
+        #filter {
+        justify-content: center;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 2rem;
     }
 
 }

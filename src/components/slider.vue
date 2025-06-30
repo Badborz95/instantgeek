@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid ">
+  <div class="container-fluid " id="main-content">
     <div class="row justify-content-center">
       <div class="col-12 col-md-10 col-lg-8 p-0 w-100 ">
         <div class="carousel-container mx-auto" :style="{
@@ -34,20 +34,20 @@
             </div>
           </div>
           <div class="controls d-flex justify-content-between mt-3">
-            <button class="btn" @click="prev">
-              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <button type="button" class="btn btn_slider" @click="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true">prev</span>
             </button>
-            <button class="btn" @click="next">
-              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <button type="button" class="btn btn_slider" @click="next">
+              <span class="carousel-control-next-icon" aria-hidden="true">next</span>
             </button>
           </div>
           <div class="game-info mt-3">
             <h2>{{ gameInfo[currentIndex].name }}</h2>
             <p>{{ gameInfo[currentIndex].description }}</p>
             <p>{{ gameInfo[currentIndex].price }}</p>
-            <a class="btn btn-page me-2">Acheter</a>
+            <a href="#" class="btn btn-page me-2">Acheter</a>
             <a :href="gameLink[currentIndex].src" target="_blank" class="btn btn-page me-2">Page du jeu</a>
-            <a class="btn btn-danger " @click="changeFavoriteImage(currentIndex)"><img
+            <a class="btn btn-danger " href="#" @click="changeFavoriteImage(currentIndex)"><img
                 :src="favorites[currentIndex] ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
                 alt="Icône" style="width: 24px; height: 24px;" /></a>
           </div>
@@ -62,11 +62,11 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 //Importation des images
 const imagesPrevu = ref([
-  { src: '/assets/img/icon/gtavi.png', alt: 'Image 1' },
-  { src: '/assets/img/icon/metaphor.png', alt: 'Image 2' },
-  { src: '/assets/img/icon/nightrein.png', alt: 'Image 3' },
-  { src: '/assets/img/icon/TLOU2.jpg', alt: 'Image 4' },
-  { src: '/assets/img/icon/Clair_Obscur.jpg', alt: 'Image 5' }
+  { src: '/assets/img/icon/gtavi.png', alt: 'Image GTA 6' },
+  { src: '/assets/img/icon/metaphor.png', alt: 'Image Metaphor :  Re Fantazio' },
+  { src: '/assets/img/icon/nightrein.png', alt: 'Image Elden Ring Nightreign' },
+  { src: '/assets/img/icon/TLOU2.jpg', alt: 'Image The last of us Part 2' },
+  { src: '/assets/img/icon/Clair_Obscur.jpg', alt: 'Image Clair obscur' }
 ]);
 
 // Liens des jeux
@@ -91,11 +91,11 @@ const imageHero = [
 
 // Informations sur les jeux
 const gameInfo = ref([
-  { name: 'Grand Thief Auto VI', description: 'lorem ipsum', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
-  { name: 'Metaphor: ReFantazio', description: 'lorem ipsum', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
-  { name: 'Elden Ring Nightrein', description: 'lorem ipsum', price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
-  { name: 'The Last of Us Part II REMASTERED', description: 'lorem ipsum', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
-  { name: 'Clair Obscur : Expédition 33', description: 'lorem ipsum', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
+  { name: 'Grand Thief Auto VI', description: 'Comme toujours, le jeu se déroule dans un monde ouvert, dans une version fictive de Miami, en Floride, appelée Vice City, Leonida...', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
+  { name: 'Metaphor: ReFantazio', description: 'Les créateurs de Persona 3, 4 et 5 ont donné naissance à Metaphor: ReFantazio. Préparez-vous à la prochaine évolution du JRPG fantastique...', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
+{ name: 'Elden Ring Nightrein', description: "ELDEN RING NIGHTREIGN est une aventure indépendante se déroulant dans l'univers d'ELDEN RING, conçue pour offrir...", price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
+  { name: 'The Last of Us Part II REMASTERED', description: 'Cinq ans après leur périlleux voyage à travers une Amérique ravagée par une pandémie...', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
+  { name: 'Clair Obscur : Expédition 33', description: 'Une fois par an, la Peintresse se réveille. Sur son Monolithe, elle peint son nombre maudit...', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
 ]);
 
 const currentIndex = ref(0);
@@ -271,7 +271,7 @@ const changeFavoriteImage = (index) => {
   right: 0;
   display: flex;
   justify-content: space-between;
-  transform: translateY(-150%);
+  transform: translateY(-180%);
   z-index: 3;
 }
 
@@ -282,7 +282,7 @@ const changeFavoriteImage = (index) => {
 
 .btn-page {
   background-color: var(--solid-one);
-  color: var(--text-high-contrast);
+  color: black;
   text-decoration: none;
   border: none;
 }
@@ -328,6 +328,10 @@ const changeFavoriteImage = (index) => {
   border-radius: 12px;
   padding: 15px;
 }
+
+  .btn_slider{
+    color: transparent;
+  }
 
 
 @media (min-width: 1200px) {

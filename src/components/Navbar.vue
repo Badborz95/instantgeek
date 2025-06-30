@@ -46,12 +46,14 @@
         <form class="search-form-mobile d-lg-none" :class="{ 'active': isSearchActiveMobile }" @submit.prevent="performSearchMobile">
           <input 
             class="form-control me-2 search-input-mobile" 
-            type="search" 
+            type="button" 
             placeholder="Rechercher..." 
             aria-label="Search"
             v-model="searchQuery"
             ref="searchInputMobileRef"
           >
+          <button class="btn search-filter-btn-mobile" type="button" @click="goToSearch"><i class="bi bi-filter"></i></button>
+
           <button class="btn search-close-btn-mobile" type="button" @click="closeSearchInputMobile"><i class="bi bi-x-lg"></i></button>
         </form>
 
@@ -80,13 +82,14 @@
           <form class="search-form d-none d-lg-flex" :class="{ 'active': isSearchActive }" @submit.prevent="performSearch" ref="searchFormRef">
             <input 
               class="form-control me-2 search-input" 
-              type="search" 
+              type="button" 
               placeholder="Rechercher..." 
               aria-label="Search"
               v-model="searchQuery"
               ref="searchInputRef"
               @blur="handleSearchBlur"
             >
+            <button v-if="isSearchActive" class="btn search-filter-btn" type="button" @click="goToSearch"><i class="bi bi-filter"></i></button>
             <button v-if="isSearchActive" class="btn search-close-btn" type="button" @click="closeSearchInput"><i class="bi bi-x-lg"></i></button>
           </form>
 
@@ -106,7 +109,7 @@
               <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
               <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
               <li>
-                <button class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
+                <button type="button" class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
                   <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
                   <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
                 </button>
@@ -151,7 +154,9 @@ const searchFormRef = ref(null);
 const isSearchActiveMobile = ref(false);
 const searchInputMobileRef = ref(null);
 
-
+const goToSearch = () =>{
+  router.push({path: '/recherche'});
+}
 const executeSearch = () => {
   if (searchQuery.value.trim() !== '' && route.query.q !== searchQuery.value.trim()) {
     searchNavigationFlag.value = true;
@@ -362,6 +367,12 @@ watch(() => authStore.user, (newUser) => {
   color: var(--solid-one);
 }
 
+.search-form .search-filter-btn {
+  right: 2.4rem;
+  color: var(--solid-one);
+  font-size: 1.8rem;
+}
+
 /* === BLOC DE STYLE MODIFIÉ POUR LA RECHERCHE MOBILE === */
 .search-icon-mobile {
     background-color: transparent;
@@ -402,6 +413,19 @@ watch(() => authStore.user, (newUser) => {
   border: none;
 }
 .search-close-btn-mobile {
+  background-color: transparent;
+  border: none;
+  color: var(--solid-one);
+  font-size: 1.5rem;
+  margin-left: 0.75rem; 
+}
+
+.search-filter-btn-mobile {
+  background-color: transparent;
+  border: none;
+  color: var(--solid-one);
+  font-size: 1.8rem;
+  margin-left: 0.5rem; 
   background-color: transparent;
   border: none;
   color: var(--solid-one);
@@ -480,4 +504,5 @@ watch(() => authStore.user, (newUser) => {
 .step-line.completed {
   background-color: var(--text-one);
 }
+
 </style>

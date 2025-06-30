@@ -147,7 +147,7 @@ footer {
   text-align: center;
   /* Styles cosmétiques existants */
   background-color: var(--solid-one);
-  color: var(--text-high-contrast);;
+  color: black;
   border-radius: 20px;
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -177,7 +177,16 @@ footer {
   }
 }
 
+
 .modal-content {
-  color: #000;
+  color: var(--text-high-contrast);
+  background-color: var(--interactive-comp-two);
 }
+.modal-content select.form-select {
+  background-color: var(--interactive-comp-three);
+  color: var(--text-high-contrast);
+  border: 1px solid var(--border-separator-one);
+  transition: border-color 0.2s;
+}
+
 </style>
