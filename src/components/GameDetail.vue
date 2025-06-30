@@ -101,10 +101,7 @@
 
         </div>
       </div>
-      <div class="description">
-        <h3>Description</h3>
-        {{ game.description }}
-      </div>
+
     </div>
     <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
@@ -213,6 +210,7 @@ onUnmounted(() => {
   background-repeat: no-repeat;
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
   padding: 0;
+  padding-bottom: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -231,8 +229,8 @@ onUnmounted(() => {
 }
 
 .tags {
-  width: 50%;
-  justify-self: flex-end;
+  width: 80%;
+  justify-self: center;
   margin-bottom: 5px;
 }
 
@@ -250,8 +248,8 @@ onUnmounted(() => {
 }
 
 .synopsis {
-  width: 50%;
-  justify-self: flex-end;
+  width: 70%;
+  justify-self: center;
 }
 
 .title,
@@ -402,10 +400,12 @@ onUnmounted(() => {
 
   .tags {
     width: 60%;
+    justify-self: flex-end;
   }
 
   .synopsis {
     width: 70%;
+    justify-self: flex-end;
   }
 
   .game-info {

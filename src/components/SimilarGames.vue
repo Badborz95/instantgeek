@@ -66,7 +66,7 @@ const fetchSimilarGames = async () => {
     })
 
     fetchedGames.sort((a, b) => b.commonTagCount - a.commonTagCount) //Trie les jeux en mettand d'abord ceux qui ont le plus de tags en commun
-    similarGames.value = fetchedGames.slice(0, 12) //Affiche un maximum de 12 jeux
+    similarGames.value = fetchedGames.slice(0, 8) //Affiche un maximum de 12 jeux
 }
 
 watch(() => props.tags, fetchSimilarGames, { immediate: true })
@@ -82,6 +82,7 @@ watch(() => props.tags, fetchSimilarGames, { immediate: true })
     width: 100%;
     height: 340px;
     padding: 30px;
+    margin-top: 40px;
 }
 
 .game-card {
@@ -148,7 +149,7 @@ watch(() => props.tags, fetchSimilarGames, { immediate: true })
 
 @media (min-width: 1250px) {
 .similar{
-  height: 1250px;
+  height: auto;
 }
 
 #similarIn{

@@ -7,7 +7,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesJuill" :key="game.id">
                     <div class="game-card GameJuill">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -20,7 +20,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesAout" :key="game.id">
                     <div class="game-card GameAout">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -33,7 +33,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesSept" :key="game.id">
                     <div class="game-card GameAout">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -46,7 +46,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesOct" :key="game.id">
                     <div class="game-card GameAout">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -59,7 +59,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesNov" :key="game.id">
                     <div class="game-card GameAout">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
@@ -72,7 +72,7 @@
             <ul id='precoIn'>
                 <li v-for="game in gamesDec" :key="game.id">
                     <div class="game-card GameAout">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>
