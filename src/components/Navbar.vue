@@ -127,7 +127,14 @@
             </ul>
           </div>
           
-          <router-link class="nav-link text ms-2" to="/panier"><i class="bi bi-cart3 navbar-icon"></i></router-link>
+          <router-link class="nav-link text ms-2 position-relative" to="/panier">
+            <i class="bi bi-cart3 navbar-icon"></i>
+            
+            <span v-if="cartStore.totalItems > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+              {{ cartStore.totalItems }}
+              <span class="visually-hidden">articles dans le panier</span>
+            </span>
+          </router-link>
         </div>
       </template>
     </div>
@@ -145,13 +152,14 @@ import { searchQuery } from '../composables/searchState.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useWishlistStore } from '../stores/wishlistStore';
+import { useCartStore } from '../stores/cartStore';
 
 // --- INIT ---
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const wishlistStore = useWishlistStore();
-
+const cartStore = useCartStore();
 
 const isProfileDropdownOpen = ref(false);
 let profileDropdown = null;
