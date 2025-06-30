@@ -3,7 +3,7 @@
         <div>
             <h1 class="mt-3 mb-5">Recherche</h1>
             <form id="filter">
-                <select v-model="selectedPlatform" @change="filterGames" class="form-select">
+                <select v-model="selectedPlatform" @change="filterGames" class="form-select" aria-label="Filtre plateforme">
                     <option value="">Systèmes</option>
                     <option value="Steam">Steam</option>
                     <option value="Switch">Nintendo Switch</option>
@@ -11,7 +11,7 @@
                     <option value="Xbox">Xbox Series</option>
                 </select>
 
-                <select v-model="selectedGenre" @change="filterGames" class="form-select">
+                <select v-model="selectedGenre" @change="filterGames" class="form-select" aria-label="Filtre genres">
                     <option value="">Genres</option>
                     <option value="Action">Action</option>
                     <option value="Aventure">Aventure</option>
@@ -34,9 +34,9 @@
 
                 <div class ="price">
                     <span>Entre</span>
-                    <input type="number" v-model="selectedPriceMin" placeholder="Prix min" @input="filterGames" class="form-control"/>
+                    <input type="number" v-model="selectedPriceMin" placeholder="Prix min" @input="filterGames" class="form-control" aria-label="prix minimum"/>
                     <span>à</span>
-                    <input type="number" v-model="selectedPriceMax" placeholder="Prix max" @input="filterGames" class="form-control" />
+                    <input type="number" v-model="selectedPriceMax" placeholder="Prix max" @input="filterGames" class="form-control" aria-label="prix maximum"/>
                     <span>€</span>
                 </div>
             </form>

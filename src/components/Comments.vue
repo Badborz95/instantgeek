@@ -19,7 +19,6 @@
             <h4>
               <TruncatedText :text="comm.text" :maxLength="80" />
             </h4>
-            <h2></h2>
           </div>
         </li>
       </ul>

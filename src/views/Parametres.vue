@@ -260,7 +260,7 @@ hr {
 
 .btn-primary {
     background-color: var(--solid-one, #50A0BD);
-    color: var(--text-high-contrast, #FFFFFF);
+    color: black;
 }
 .btn-primary:hover {
     background-color: var(--solid-two, #4394B0);

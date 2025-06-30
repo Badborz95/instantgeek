@@ -46,7 +46,7 @@
         <form class="search-form-mobile d-lg-none" :class="{ 'active': isSearchActiveMobile }" @submit.prevent="performSearchMobile">
           <input 
             class="form-control me-2 search-input-mobile" 
-            type="search" 
+            type="button" 
             placeholder="Rechercher..." 
             aria-label="Search"
             v-model="searchQuery"
@@ -82,7 +82,7 @@
           <form class="search-form d-none d-lg-flex" :class="{ 'active': isSearchActive }" @submit.prevent="performSearch" ref="searchFormRef">
             <input 
               class="form-control me-2 search-input" 
-              type="search" 
+              type="button" 
               placeholder="Rechercher..." 
               aria-label="Search"
               v-model="searchQuery"
@@ -109,7 +109,7 @@
               <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
               <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
               <li>
-                <button class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
+                <button type="button" class="dropdown-item d-flex justify-content-between align-items-center" @click.stop="toggleDarkMode">
                   <span>{{ isDarkMode ? 'Mode clair' : 'Mode sombre' }}</span>
                   <i :class="isDarkMode ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill'"></i>
                 </button>
