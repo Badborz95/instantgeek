@@ -13,6 +13,7 @@ import GameDetail from '../views/GameDetailPage.vue';
 import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
 import Parametres from '../views/Parametres.vue';
+import Wishlist from '../views/Wishlist.vue'
 import Paiement from '../views/Paiement.vue';
 import ValidationPaiement from '../views/ValidationPaiement.vue'
 
@@ -93,7 +94,12 @@ const router = createRouter({
         path: '/:pathMatch(.*)*',
         name: 'not-found',
         component: NotFound
-    }
+    },
+    {
+        path: '/wishlist',
+        name: 'wishlist',
+        component: Wishlist
+    },
     // Ajoutez d'autres routes ici si nécessaire
   ],
 

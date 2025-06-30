@@ -23,7 +23,6 @@ export const useCartStore = defineStore('cart', () => {
     return total.toFixed(2); // Garde 2 décimales pour l'affichage
   });
   
-  // === PRIVATE ACTIONS (Fonctions internes) ===
   /**
    * Sauvegarde le panier dans Firestore pour l'utilisateur connecté.
    */
@@ -61,7 +60,7 @@ export const useCartStore = defineStore('cart', () => {
   }
   
   /**
-   * Supprime complètement un produit du panier.
+   * Supprime un produit du panier.
    * @param {string} productId - L'ID du produit à retirer
    */
   function removeItem(productId) {
