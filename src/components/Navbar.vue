@@ -83,7 +83,7 @@
           <form class="search-form d-none d-lg-flex" :class="{ 'active': isSearchActive }" @submit.prevent="performSearch" ref="searchFormRef">
             <input 
               class="form-control me-2 search-input" 
-              type="button" 
+              type="search" 
               placeholder="Rechercher..." 
               aria-label="Search"
               v-model="searchQuery"
