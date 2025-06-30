@@ -47,9 +47,11 @@
             <p>{{ gameInfo[currentIndex].price }}</p>
             <a class="btn btn-page me-2">Acheter</a>
             <a :href="gameLink[currentIndex].src" target="_blank" class="btn btn-page me-2">Page du jeu</a>
-            <a class="btn btn-danger " @click="changeFavoriteImage(currentIndex)"><img
-                :src="favorites[currentIndex] ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
-                alt="Icône" style="width: 24px; height: 24px;" /></a>
+            <a class="btn btn-danger" @click="toggleWishlist">
+              <img
+                :src="isCurrentGameInWishlist ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
+                alt="Icône de favori" style="width: 24px; height: 24px;" />
+            </a>
           </div>
         </div>
       </div>
@@ -59,6 +61,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useWishlistStore } from '../stores/wishlistStore';
+
+const wishlistStore = useWishlistStore();
 
 //Importation des images
 const imagesPrevu = ref([
@@ -100,7 +105,6 @@ const gameInfo = ref([
 
 const currentIndex = ref(0);
 const isFading = ref(false);
-const favorites = ref([false, false, false, false, false]); // Tableau pour les favoris
 
 const prevIndex = computed(() => (currentIndex.value - 1 + imagesPrevu.value.length) % imagesPrevu.value.length); // Index de l'image précédente
 const nextIndex = computed(() => (currentIndex.value + 1) % imagesPrevu.value.length); // Index de l'image suivante
@@ -132,6 +136,15 @@ const slideStyle = (i) => {
   }
 };
 
+const isCurrentGameInWishlist = computed(() => {
+  // On récupère l'ID du jeu actuellement affiché par le slider
+  const currentGameId = gameInfo.value[currentIndex.value]?.id;
+  if (!currentGameId) return false;
+  // On utilise le getter de notre store pour vérifier
+  return wishlistStore.isInWishlist(currentGameId);
+});
+
+
 let autoSlideInterval = null;
 
 function resetAutoSlide() {
@@ -141,7 +154,7 @@ function resetAutoSlide() {
   }, 6000);
 }
 
-onMounted(() => {
+onMounted(async () => {
   resetAutoSlide();
 });
 
@@ -174,8 +187,18 @@ const handleSlideClick = (i) => {
   if (i === 2) next();
 };
 
-const changeFavoriteImage = (index) => {
-  favorites.value[index] = !favorites.value[index];
+const toggleWishlist = () => {
+  const currentGame = gameInfo.value[currentIndex.value];
+  if (!currentGame?.id) return; // Sécurité pour s'assurer que le jeu existe
+
+  // On vérifie si le jeu est déjà dans la liste
+  if (isCurrentGameInWishlist.value) {
+    // Si oui, on le retire
+    wishlistStore.removeFromWishlist(currentGame.id);
+  } else {
+    // Sinon, on l'ajoute
+    wishlistStore.addToWishlist(currentGame.id);
+  }
 };
 
 </script>

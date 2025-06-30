@@ -34,7 +34,9 @@
           <h3 class="price">{{ game.price }}</h3>
         </div>
         <div class="buttons">
-          <button class="favorite">favoris</button>
+          <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
+          <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
+          </button>
           <button class="cart" @click="ajouterAuPanier">
             <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
               Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
@@ -85,7 +87,10 @@
               <h3 class="price">{{ game.price }}</h3>
             </div>
             <div class="buttons">
-              <button class="favorite">favoris</button>
+              <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
+                <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
+                <span>{{ isGameInWishlist ? 'Dans la wishlist' : 'Ajouter aux favoris' }}</span>
+              </button>
               <button class="cart" @click="ajouterAuPanier" >
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
@@ -115,15 +120,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue' 
+import { useRoute, useRouter } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
 import { useCartStore } from '../stores/cartStore'
+import { useWishlistStore } from '../stores/wishlistStore' 
 
 const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
 const game = ref(null)
@@ -140,7 +147,7 @@ const fetchGameById = async (id) => {
         titre: data.name,
         link: data.link,
         image: data.image,
-        price: `${data.price}€`,
+        price: `${Number(data.price).toFixed(2)}€`,
         date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
         description: data.description,
         tags: data.tag,
@@ -148,12 +155,27 @@ const fetchGameById = async (id) => {
         hero: data.hero
       }
     } else {
-      router.replace({ name: 'not-found' }); //Redirige vers la page 404 si aucun ID trouvé
+      router.replace({ name: 'NotFound' }); // Assurez-vous que votre route 404 s'appelle 'NotFound'
     }
   } catch (error) {
     console.error('Erreur lors de la récupération du jeu :', error)
   }
 }
+
+const isGameInWishlist = computed(() => {
+  if (!game.value?.id) return false;
+  return wishlistStore.isInWishlist(game.value.id);
+});
+
+const toggleWishlist = () => {
+  if (!game.value?.id) return; // Sécurité
+
+  if (isGameInWishlist.value) {
+    wishlistStore.removeFromWishlist(game.value.id);
+  } else {
+    wishlistStore.addToWishlist(game.value.id);
+  }
+};
 
 function ajouterAuPanier() {
   cartStore.addItem({
@@ -163,11 +185,6 @@ function ajouterAuPanier() {
     price: parseFloat(game.value.price),
   })
 }
-
-onMounted(() => {
-  if (gameId.value) fetchGameById(gameId.value)
-
-})
 
 // Facultatif : si on arrive sur ce composant déjà chargé mais avec un autre id (navigation interne)
 watch(() => route.params.id, (newId) => {
@@ -183,14 +200,22 @@ const handleResize = () => {
 }
 
 onMounted(() => {
-  window.addEventListener('resize', handleResize)
-})
+  if (gameId.value) {
+    fetchGameById(gameId.value);
+  }
+  window.addEventListener('resize', handleResize);
+});
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
 })
 
-
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    gameId.value = newId;
+    fetchGameById(newId);
+  }
+});
 </script>
 
 <style scoped>
@@ -344,6 +369,35 @@ onUnmounted(() => {
   margin-bottom: 30px;
 }
 
+/* Style pour les boutons de la wishlist */
+
+.favorite {
+  width: 15%; /* Pour la version mobile */
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espace entre l'icône et le texte */
+  border: 1px solid var(--border-separator-one);
+  background-color: var(--interactive-comp-one);
+  color: var(--text-one);
+  border-radius: 2em;
+  font-size: 1.5rem; /* Taille de l'icône */
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.favorite:hover {
+  background-color: var(--interactive-comp-three);
+  border-color: var(--border-separator-three);
+}
+
+.favorite.in-wishlist {
+  background-color: var(--interactive-comp-two);
+  opacity: 0.5;
+  color: var(--text-two);
+  border-color: var(--border-separator-three);
+}
+
 /*VERSION DESKTOP*/
 @media (min-width: 768px) {
   .background {
@@ -408,6 +462,14 @@ onUnmounted(() => {
 
   .game-details {
     background-color: transparent;
+  }
+  .favorite {
+      width: auto; /* La taille s'adapte au contenu */
+      padding: 0 20px; /* Un peu d'espace horizontal */
+      font-size: 1rem; /* Taille du texte normal */
+  }
+  .favorite i {
+      font-size: 1.2rem; /* Taille de l'icône sur desktop */
   }
 }
 </style>
