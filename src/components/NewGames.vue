@@ -1,11 +1,11 @@
 <template>
-    <div class="container-fluid py-2 preco">
+    <div class="container-fluid py-2 preco" id="main-content">
         <div>
             <h1 class="mt-3 mb-5">Nouveautés</h1>
             <ul id='precoIn'>
                 <li v-for="game in games" :key="game.id">
                     <div class="game-card">
-                        <a :href="game.link"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></a>
+                        <router-link class="nav-link" :to="`/game/${game.id}`"><img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" /></router-link>
                         <div class="game-text">
                             <h3 class="titre">{{ game.titre }}</h3>
                             <h3 class="prix">{{ game.price }}</h3>

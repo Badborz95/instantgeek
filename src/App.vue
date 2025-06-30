@@ -4,6 +4,7 @@ import './style.css';
 </script>
 <template>
   <div id="app-wrapper">
+    <a href="#main-content" class="skip-link">Aller au contenu principal</a>
     <main class="container-fluid p-0 flex-fill">
       <router-view />
     </main>

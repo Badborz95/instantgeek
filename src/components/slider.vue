@@ -1,5 +1,5 @@
 <template>
-  <div class="container-fluid ">
+  <div class="container-fluid " id="main-content">
     <div class="row justify-content-center">
       <div class="col-12 col-md-10 col-lg-8 p-0 w-100 ">
         <div class="carousel-container mx-auto" :style="{
@@ -18,9 +18,10 @@
               i === 1 && isFading ? 'fading' : ''
             ]" :style="slideStyle(i)" @click="handleSlideClick(i)">
               <template v-if="i === 1">
-                <a :href="gameLink[currentIndex].src" target="_blank">
+                <router-link :to="`/game/${gameInfo[currentIndex].id}`">
                   <img :src="slide.src" :alt="slide.alt" class="img-fluid rounded-4" style="cursor:pointer;" />
-                </a>
+                </router-link>
+
               </template>
               <template v-else>
                 <img :src="slide.src" :alt="slide.alt" class="img-fluid rounded-4" />
@@ -90,15 +91,15 @@ const imageHero = [
 
 // Informations sur les jeux
 const gameInfo = ref([
-  { name: 'Grand Thief Auto VI', description: 'lorem ipsum', price: '99.99€', },
-  { name: 'Metaphor: ReFantazio', description: 'lorem ipsum', price: '39.99€', },
-  { name: 'Elden Ring Nightrein', description: 'lorem ipsum', price: '31.52€', },
-  { name: 'The Last of Us Part II REMASTERED', description: 'lorem ipsum', price: '35.43€', },
-  { name: 'Clair Obscur : Expédition 33', description: 'lorem ipsum', price: '29.99€', }
+  { name: 'Grand Thief Auto VI', description: 'Comme toujours, le jeu se déroule dans un monde ouvert, dans une version fictive de Miami, en Floride, appelée Vice City, Leonida...', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
+  { name: 'Metaphor: ReFantazio', description: 'Les créateurs de Persona 3, 4 et 5 ont donné naissance à Metaphor: ReFantazio. Préparez-vous à la prochaine évolution du JRPG fantastique...', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
+{ name: 'Elden Ring Nightrein', description: "ELDEN RING NIGHTREIGN est une aventure indépendante se déroulant dans l'univers d'ELDEN RING, conçue pour offrir...", price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
+  { name: 'The Last of Us Part II REMASTERED', description: 'Cinq ans après leur périlleux voyage à travers une Amérique ravagée par une pandémie...', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
+  { name: 'Clair Obscur : Expédition 33', description: 'Une fois par an, la Peintresse se réveille. Sur son Monolithe, elle peint son nombre maudit...', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
 ]);
 
 const currentIndex = ref(0);
-const isFading = ref(false); 
+const isFading = ref(false);
 const favorites = ref([false, false, false, false, false]); // Tableau pour les favoris
 
 const prevIndex = computed(() => (currentIndex.value - 1 + imagesPrevu.value.length) % imagesPrevu.value.length); // Index de l'image précédente
@@ -140,7 +141,7 @@ function resetAutoSlide() {
   }, 6000);
 }
 
-onMounted(() => { 
+onMounted(() => {
   resetAutoSlide();
 });
 
@@ -224,8 +225,8 @@ const changeFavoriteImage = (index) => {
   filter: blur(0.5px);
   width: 25%;
   z-index: 1;
-  
-  
+
+
 }
 
 .slide.active {
@@ -239,7 +240,7 @@ const changeFavoriteImage = (index) => {
     transform 0.5s cubic-bezier(0.10, 1, 0.36, 1),
     cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.5s;
-    
+
 
 }
 

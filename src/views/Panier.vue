@@ -1,6 +1,6 @@
 <template>
   <Navbar />
-  <div class="panier-container container py-5">
+  <div class="panier-container container py-5" id="main-content">
     <div class="row g-4 mt-4">
       <div class="col-lg-8">
         <div class="cart-items-list">

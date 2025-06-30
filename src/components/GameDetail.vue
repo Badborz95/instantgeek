@@ -1,9 +1,9 @@
 <template>
-  <div class="container-fluid py-2 gameDetail" v-if="game">
+  <div class="container-fluid py-2 gameDetail" v-if="game" id="main-content">
 
 
     <div v-if="isMobile">
-      <!--Version mobile-->
+      <!--VERSION MOBILE-->
       <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
         <h1 class="title">{{ game.titre }}</h1>
         <div class="game-info">
@@ -35,7 +35,7 @@
         </div>
         <div class="buttons">
           <button class="favorite">favoris</button>
-          <button class="cart">
+          <button class="cart" @click="ajouterAuPanier">
             <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
               Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
               https://fontawesome.com/license/free
@@ -46,13 +46,14 @@
           </button>
         </div>
         <div class="description">
-          <h3>description</h3>
+          <h3>Description</h3>
+          {{ game.description }}
         </div>
       </div>
     </div>
     <div v-else>
-      <!--Version desktop-->
-      <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
+      <!--VERSION DESKTOP-->
+      <div class="background" :style="{ backgroundImage: `url(${game.hero})` }">
         <div>
           <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
         </div>
@@ -67,8 +68,7 @@
               </ul>
             </h3>
             <p class="synopsis">
-              <!---<TruncatedText :text="game.titre" :maxLength="80" />-->
-              {{ game.description }}
+              <TruncatedText :text="game.description" :maxLength="450" />
             </p>
           </div>
           <div class="game-details">
@@ -86,7 +86,7 @@
             </div>
             <div class="buttons">
               <button class="favorite">favoris</button>
-              <button class="cart">
+              <button class="cart" @click="ajouterAuPanier" >
                 <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
                   Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
                   https://fontawesome.com/license/free
@@ -96,19 +96,22 @@
                 </svg>
               </button>
             </div>
-            <div class="description">
-              <h3>description</h3>
-            </div>
+
           </div>
+
         </div>
       </div>
-
+      <div class="description">
+        <h3>Description</h3>
+        {{ game.description }}
+      </div>
     </div>
-
+    <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
   <div v-else>
     <p>Chargement du jeu...</p>
   </div>
+  
 </template>
 
 <script setup>
@@ -117,7 +120,10 @@ import { useRoute } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
+import SimilarGames from './SimilarGames.vue'
+import { useCartStore } from '../stores/cartStore'
 
+const cartStore = useCartStore()
 const route = useRoute()
 const gameId = ref(route.params.id) // ID du jeu dans l'URL
 const game = ref(null)
@@ -138,7 +144,8 @@ const fetchGameById = async (id) => {
         date: data.dateSortie.toDate().toLocaleDateString('fr-FR'),
         description: data.description,
         tags: data.tag,
-        platform: data.plateforme
+        platform: data.plateforme,
+        hero: data.hero
       }
     } else {
       router.replace({ name: 'not-found' }); //Redirige vers la page 404 si aucun ID trouvé
@@ -146,6 +153,15 @@ const fetchGameById = async (id) => {
   } catch (error) {
     console.error('Erreur lors de la récupération du jeu :', error)
   }
+}
+
+function ajouterAuPanier() {
+  cartStore.addItem({
+    id: game.value.id,
+    name: game.value.titre,
+    image: game.value.hero,
+    price: parseFloat(game.value.price),
+  })
 }
 
 onMounted(() => {
@@ -196,6 +212,8 @@ onUnmounted(() => {
   justify-content: space-between;
 }
 
+
+
 .title {
   align-self: center;
   margin-bottom: 10px;
@@ -241,7 +259,7 @@ onUnmounted(() => {
 
 .price {
   font-size: 3em;
-  justify-self:center;
+  justify-self: center;
   margin-top: 20px;
 }
 
@@ -273,7 +291,7 @@ onUnmounted(() => {
   margin-top: 10px;
 }
 
-.infos p{
+.infos p {
   font-size: 1.5em;
 }
 
@@ -291,10 +309,15 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-evenly;
   height: 80px;
-  background-color: var(--text-one);
-  border: 0;
+  background: var(--text-one);
   border-radius: 2em;
   border: solid 1px black;
+  transition: background-color 0.3s, color 0.3s;
+  font-weight: bold;
+}
+
+.cart:hover {
+  background: var(--text-two);
 }
 
 .cart>svg {
@@ -312,23 +335,54 @@ onUnmounted(() => {
 }
 
 .description {
-  margin-top: 50px;
+  height: auto;
+  background-color: var(--background-two);
+  padding: 20px 50px;
 }
 
+.description h3 {
+  margin-bottom: 30px;
+}
+
+/*VERSION DESKTOP*/
 @media (min-width: 768px) {
   .background {
-    height: 1080px;
+    height: 900px;
     padding: 8% 15%;
-  }
-
-  .background {
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
   }
 
+
+  .background::before {
+    /*"détache" l'image de fondd des autres éléments en en créant une copie afin de la modifier*/
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(6px);
+    z-index: 0;
+    transform: scale(1.1);
+    /* Évite les bords visibles du blur */
+  }
+
+  .background {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .background>* {
+    position: relative;
+    z-index: 1;
+    /*¨Place les éléments à l'intérieur devant le fond*/
+  }
+
   .background img {
-    width: 80%;
+    width: 97%;
+    border-radius: 20px;
   }
 
   .desktop {
@@ -336,7 +390,8 @@ onUnmounted(() => {
   }
 
   .title {
-    justify-self: flex-start;
+    justify-self: flex-end;
+    margin-right: 4%;
   }
 
   .tags {
@@ -345,6 +400,10 @@ onUnmounted(() => {
 
   .synopsis {
     width: 70%;
+  }
+
+  .game-info {
+    padding-right: 4%;
   }
 
   .game-details {
