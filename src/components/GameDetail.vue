@@ -106,17 +106,14 @@
 
         </div>
       </div>
-      <div class="description">
-        <h3>Description</h3>
-        {{ game.description }}
-      </div>
+
     </div>
     <SimilarGames :tags="game.tags" :currentGameId="game.id" />
   </div>
   <div v-else>
     <p>Chargement du jeu...</p>
   </div>
-  
+
 </template>
 
 <script setup>
@@ -128,7 +125,10 @@ import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
 import { useCartStore } from '../stores/cartStore'
 import { useWishlistStore } from '../stores/wishlistStore' 
+import { useToast } from 'vue-toastification'
 
+
+const toast = useToast()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
 const route = useRoute()
@@ -184,6 +184,10 @@ function ajouterAuPanier() {
     image: game.value.hero,
     price: parseFloat(game.value.price),
   })
+  toast.success('Jeu ajouté au panier !', {
+    timeout: 3000,
+    position: 'bottom-right'
+  })
 }
 
 // Facultatif : si on arrive sur ce composant déjà chargé mais avec un autre id (navigation interne)
@@ -232,6 +236,7 @@ watch(() => route.params.id, (newId) => {
   background-repeat: no-repeat;
   box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
   padding: 0;
+  padding-bottom: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -250,8 +255,8 @@ watch(() => route.params.id, (newId) => {
 }
 
 .tags {
-  width: 50%;
-  justify-self: flex-end;
+  width: 80%;
+  justify-self: center;
   margin-bottom: 5px;
 }
 
@@ -269,8 +274,8 @@ watch(() => route.params.id, (newId) => {
 }
 
 .synopsis {
-  width: 50%;
-  justify-self: flex-end;
+  width: 70%;
+  justify-self: center;
 }
 
 .title,
@@ -450,10 +455,12 @@ watch(() => route.params.id, (newId) => {
 
   .tags {
     width: 60%;
+    justify-self: flex-end;
   }
 
   .synopsis {
     width: 70%;
+    justify-self: flex-end;
   }
 
   .game-info {

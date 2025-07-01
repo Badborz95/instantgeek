@@ -27,4 +27,10 @@ authStore.initAuthListener();
 const cartStore = useCartStore();
 cartStore.init(); // Cela va charger le panier et écouter les changements d'utilisateur
 
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
+
+app.use(Toast)
+
+
 app.mount('#app');

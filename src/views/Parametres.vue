@@ -150,6 +150,11 @@ async function handleDeleteAccount() {
     errorMessage.value = "Erreur lors de la suppression : " + e.message;
   }
 }
+
+// Navigation retour
+function goBack() {
+  router.back();
+}
 </script>
 
 <style scoped>
@@ -161,7 +166,6 @@ async function handleDeleteAccount() {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
-
 .card {
   background-color: var(--background-two, #0E181C);
   border: 1px solid var(--border-separator-one, #024457);
@@ -235,7 +239,7 @@ hr {
 
 .btn-primary {
     background-color: var(--solid-one, #50A0BD);
-    color: var(--text-high-contrast, #FFFFFF);
+    color: black;
 }
 .btn-primary:hover {
     background-color: var(--solid-two, #4394B0);

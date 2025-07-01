@@ -1,9 +1,9 @@
 <template>
-    <Navbar />
+  <Navbar />
   <main>
     <div class="container py-5">
       <h1 class="mb-4">Ma Wishlist ({{ sortedGames.length }} jeux)</h1>
-      
+
       <div class="d-flex justify-content-end mb-4">
         <select class="form-select" style="max-width: 200px;" v-model="sortBy">
           <option value="default">Trier par...</option>
@@ -24,21 +24,23 @@
         <p>Parcourez nos jeux et cliquez sur le cœur pour les ajouter !</p>
         <router-link to="/" class="btn btn-primary">Explorer les jeux</router-link>
       </div>
-      
+
       <div v-else class="row g-4">
         <div v-for="game in sortedGames" :key="game.id" class="col-6 col-md-4 col-lg-3">
-          <div class="card h-100 game-card">
+          <router-link class="nav-link" :to="`/game/${game.id}`">
+            <div class="card h-100 game-card">
 
-            <img :src="game.hero" class="card-img-top" :alt="game.titre">
+              <img :src="game.hero" class="card-img-top" :alt="game.titre">
 
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ game.titre }}</h5>
-              <p class="card-text mt-auto mb-2 price">{{ game.price }} €</p>
-              <button @click="wishlistStore.removeFromWishlist(game.id)" class="btn btn-danger btn-sm">
-                <i class="bi bi-trash-fill"></i> Retirer
-              </button>
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ game.titre }}</h5>
+                <p class="card-text mt-auto mb-2 price">{{ game.price }} €</p>
+                <button @click="wishlistStore.removeFromWishlist(game.id)" class="btn btn-danger btn-sm">
+                  <i class="bi bi-trash-fill"></i> Retirer
+                </button>
+              </div>
             </div>
-          </div>
+          </router-link>
         </div>
       </div>
     </div>
@@ -47,7 +49,7 @@
 
 <script setup>
 import Navbar from '../components/Navbar.vue';
-import { ref, onMounted, watch, computed } from 'vue'; 
+import { ref, onMounted, watch, computed } from 'vue';
 import { useWishlistStore } from '../stores/wishlistStore';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/index';
@@ -55,12 +57,12 @@ import { db } from '../firebase/index';
 const wishlistStore = useWishlistStore();
 const games = ref([]); // Contiendra les objets de jeu complets
 const isLoading = ref(false);
-const sortBy = ref('default'); 
+const sortBy = ref('default');
 
 const formatGameData = (doc) => {
   const data = doc.data();
   const dateObject = data.dateSortie.toDate();
-  
+
   return {
     id: doc.id,
     titre: data.name,
@@ -68,7 +70,7 @@ const formatGameData = (doc) => {
     image: data.image,
     hero: data.hero,
     price: `${data.price.toFixed(2)}`,
-    numericPrice: data.price, 
+    numericPrice: data.price,
     date: dateObject.toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' }),
     dateObject: dateObject,
     description: data.description,
@@ -80,7 +82,7 @@ const formatGameData = (doc) => {
 // Filtrer les jeux en fonction de la plateforme sélectionnée
 const sortedGames = computed(() => {
   // On crée une copie pour ne pas modifier la liste originale
-  const gamesToSort = [...games.value]; 
+  const gamesToSort = [...games.value];
 
   switch (sortBy.value) {
     case 'price-asc':
@@ -106,12 +108,12 @@ const fetchGameDetails = async (gameIds) => {
   }
   isLoading.value = true;
   const gamesRef = collection(db, 'games');
-  const q = query(gamesRef, where('__name__', 'in', gameIds)); 
+  const q = query(gamesRef, where('__name__', 'in', gameIds));
 
   const querySnapshot = await getDocs(q);
 
   games.value = querySnapshot.docs.map(doc => formatGameData(doc));
-  
+
   isLoading.value = false;
 };
 
@@ -141,9 +143,9 @@ h1 {
 }
 
 .form-select {
-    background-color: var(--interactive-comp-one);
-    color: var(--text-one);
-    border-color: var(--border-separator-one);
+  background-color: var(--interactive-comp-one);
+  color: var(--text-one);
+  border-color: var(--border-separator-one);
 }
 
 .game-card {
@@ -152,24 +154,25 @@ h1 {
   color: var(--text-one);
   transition: transform 0.2s ease-in-out;
 }
+
 .game-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--border-separator-three);
+  transform: translateY(-5px);
+  border-color: var(--border-separator-three);
 }
 
 .game-card .card-title {
-    color: var(--text-two);
+  color: var(--text-two);
 }
 
 .game-card .price {
-    color: var(--solid-one);
-    font-weight: bold;
-    font-size: 1.2rem;
+  color: var(--solid-one);
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 .empty-wishlist-card {
-    background-color: var(--background-two);
-    border-radius: 8px;
-    border: 1px dashed var(--border-separator-two);
+  background-color: var(--background-two);
+  border-radius: 8px;
+  border: 1px dashed var(--border-separator-two);
 }
 </style>
