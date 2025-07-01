@@ -12,33 +12,40 @@
       </router-link>
 
 <!-- Template pour le processus de panier -->
-      <template v-if="isOnCartProcessPage">
-        <div class="navbar-center-content flex-grow-1 d-flex justify-content-center align-items-center">
-          <div class="ig-stepper">
-            <div class="step" :class="{ 'completed': currentStep > 1, 'active': currentStep === 1 }">
-              <div class="step-circle">1</div>
-              <div class="step-label">Panier</div>
-            </div>
-            <div class="step-line" :class="{ 'completed': currentStep >= 2 }"></div>
-            <div class="step" :class="{ 'completed': currentStep > 2, 'active': currentStep === 2 }">
-              <div class="step-circle">2</div>
-              <div class="step-label">Paiement</div>
-            </div>
-            <div class="step-line" :class="{ 'completed': currentStep >= 3 }"></div>
-            <div class="step" :class="{ 'completed': currentStep > 3, 'active': currentStep === 3 }">
-              <div class="step-circle">3</div>
-              <div class="step-label">Validation</div>
-            </div>
-          </div>
-        </div>
-        <div class="secure-payment-cart d-flex align-items-center ms-auto">
-          <i class="bi bi-check-circle-fill secure-icon-cart me-2"></i>
-          <div class="text-end">
-            <span class="secure-text-cart d-block">Paiement sécurisé</span>
-            <span class="ssl-text-cart d-block">SSL Secured</span>
-          </div>
-        </div>
-      </template>
+<template v-if="isOnCartProcessPage">
+  <div class="navbar-center-content flex-grow-1 d-flex justify-content-center align-items-center">
+    <div class="ig-stepper">
+            
+      <div class="step" :class="{ 'completed': currentStep > 1, 'active': currentStep === 1 }">
+        <div class="step-circle">1</div>
+        <div class="step-label d-none d-sm-block">Panier</div>
+      </div>
+
+      <div class="step-line" :class="{ 'completed': currentStep >= 2 }"></div>
+
+      <div class="step" :class="{ 'completed': currentStep > 2, 'active': currentStep === 2 }">
+        <div class="step-circle">2</div>
+        <div class="step-label d-none d-sm-block">Paiement</div>
+      </div>
+
+      <div class="step-line" :class="{ 'completed': currentStep >= 3 }"></div>
+
+      <div class="step" :class="{ 'completed': currentStep > 3, 'active': currentStep === 3 }">
+        <div class="step-circle">3</div>
+        <div class="step-label d-none d-sm-block">Validation</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="secure-payment-cart d-none d-md-flex align-items-center ms-auto">
+    <i class="bi bi-check-circle-fill secure-icon-cart me-2"></i>
+    <div class="text-end">
+      <span class="secure-text-cart d-block">Paiement sécurisé</span>
+      <span class="ssl-text-cart d-block">SSL Secured</span>
+    </div>
+  </div>
+</template>
 
 <!-- Template pour toutes les autres pages -->
       <template v-else>
@@ -120,7 +127,14 @@
             </ul>
           </div>
           
-          <router-link class="nav-link text ms-2" to="/panier"><i class="bi bi-cart3 navbar-icon"></i></router-link>
+          <router-link class="nav-link text ms-2 position-relative" to="/panier">
+            <i class="bi bi-cart3 navbar-icon"></i>
+            
+            <span v-if="cartStore.totalItems > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+              {{ cartStore.totalItems }}
+              <span class="visually-hidden">articles dans le panier</span>
+            </span>
+          </router-link>
         </div>
       </template>
     </div>
@@ -138,13 +152,14 @@ import { searchQuery } from '../composables/searchState.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useWishlistStore } from '../stores/wishlistStore';
+import { useCartStore } from '../stores/cartStore';
 
 // --- INIT ---
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const wishlistStore = useWishlistStore();
-
+const cartStore = useCartStore();
 
 const isProfileDropdownOpen = ref(false);
 let profileDropdown = null;
@@ -494,6 +509,30 @@ const currentStep = computed(() => {
 }
 .step-line.completed {
   background-color: var(--text-one);
+}
+
+@media (max-width: 767.98px) {
+  .ig-stepper {
+    max-width: 100%; 
+    padding: 0 1rem;
+  }
+
+  .step-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+
+  .step-line {
+    margin: 0 0.5rem;
+  }
+
+  @media (max-width: 575.98px) {
+    .step-circle {
+      margin-right: 0;
+    }
+  }
 }
 
 </style>
