@@ -15,7 +15,11 @@ import Recherche from '../views/Recherche.vue';
 import Parametres from '../views/Parametres.vue';
 import Wishlist from '../views/Wishlist.vue'
 import Paiement from '../views/Paiement.vue';
-import ValidationPaiement from '../views/ValidationPaiement.vue'
+import ValidationPaiement from '../views/ValidationPaiement.vue';
+import Conditions from '../views/Conditions.vue';
+import Politique from '../views/Politique.vue';
+import A_Propos from '../views/A_Propos.vue';
+import Contact from '../views/Contact.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -99,6 +103,26 @@ const router = createRouter({
         path: '/wishlist',
         name: 'wishlist',
         component: Wishlist
+    },
+    {
+        path: '/conditions',
+        name: 'conditions',
+        component: Conditions
+    },
+    {
+        path: '/politique',
+        name: 'politique',
+        component: Politique
+    },
+        {
+        path: '/a_propos',
+        name: 'a_propos',
+        component: A_Propos
+    },
+        {
+        path: '/contact',
+        name: 'contact',
+        component: Contact
     },
     // Ajoutez d'autres routes ici si nécessaire
   ],
