@@ -19,31 +19,16 @@ import { setDoc, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 /**
  * Inscription complète avec email/mot de passe et données supplémentaires.
  */
-
 export async function signUp(email, password, userData) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
-
-  // ⭐ AMÉLIORATION : Mettre à jour le profil Firebase Auth avec un displayName
-  // Si aucun nom d'utilisateur n'est fourni, on utilise la partie de l'email avant le '@'
-  const displayName = `${userData.firstname} ${userData.username}`;
+  const displayName = userData.displayName || email.split('@')[0];
   await updateProfile(user, { displayName });
   await setDoc(doc(db, 'users', user.uid), {
     uid: user.uid,
     email: user.email,
-    displayName: displayName,
-    firstname: userData.firstname,
-    username: userData.username,
-    birthdate: userData.birthdate,
-    country: userData.country,
     createdAt: new Date(),
-    // On initialise l'objet adresse de facturation
-    billingAddress: {
-      street: "",
-      city: "",
-      postalCode: "",
-      country: userData.country // On peut pré-remplir le pays
-    }
+    ...userData
   });
   return user;
 }

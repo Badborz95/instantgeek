@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Accueil from '../views/Accueil.vue'
 
 // Nous importons les composants pour les autres pages.
+// Vous devrez créer ces fichiers dans votre dossier /views.
 import Nouveautes from '../views/Nouveautes.vue'
 import Precommandes from '../views/Precommandes.vue'
 import ProchainesSorties from '../views/ProchainesSorties.vue'
@@ -13,9 +14,8 @@ import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
 import Parametres from '../views/Parametres.vue';
 import Wishlist from '../views/Wishlist.vue'
-import Validation from '../views/Validation.vue';
-import MesAchats from '../views/MesAchats.vue'
 import Paiement from '../views/Paiement.vue';
+import ValidationPaiement from '../views/ValidationPaiement.vue';
 import Conditions from '../views/Conditions.vue';
 import Politique from '../views/Politique.vue';
 import A_Propos from '../views/A_Propos.vue';
@@ -60,29 +60,24 @@ const router = createRouter({
     component: Parametres, 
     },
     {
-      path: '/panier',
-      name: 'panier',
-      component: Panier
+        path: '/ValidationPaiement',
+        name: 'ValidationPaiement',
+        component: ValidationPaiement
+    },
+        {
+        path: '/panier',
+        name: 'panier',
+        component: Panier
     },
     {
-      path: '/validation/:orderId',
-      name: 'validation',
-      component: Validation
+        path: '/game/:id',
+        name: 'gameDetailPage',
+        component: GameDetail
     },
     {
-      path: '/mes-achats',
-      name: 'mesAchats',
-      component: MesAchats
-    },
-    {
-      path: '/game/:id',
-      name: 'gameDetailPage',
-      component: GameDetail
-    },
-    {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: NotFound
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
     },
     {
       path: '/recherche',
@@ -90,39 +85,48 @@ const router = createRouter({
       component: Recherche
     },
     {
-      path: '/paiement',
-      name: 'paiement',
-      component: Paiement
+        path: '/game/:id',
+        name: 'gameDetailPage',
+        component: GameDetail
+    },
+        {
+        path: '/paiement',
+        name: 'paiement',
+        component: Paiement
     },
     {
-      path: '/wishlist',
-      name: 'wishlist',
-      component: Wishlist
+        path: '/:pathMatch(.*)*',
+        name: 'not-found',
+        component: NotFound
     },
     {
-      path: '/conditions',
-      name: 'conditions',
-      component: Conditions
+        path: '/wishlist',
+        name: 'wishlist',
+        component: Wishlist
     },
     {
-      path: '/politique',
-      name: 'politique',
-      component: Politique
+        path: '/conditions',
+        name: 'conditions',
+        component: Conditions
     },
     {
-      path: '/a_propos',
-      name: 'a_propos',
-      component: A_Propos
+        path: '/politique',
+        name: 'politique',
+        component: Politique
     },
-    {
-      path: '/contact',
-      name: 'contact',
-      component: Contact
+        {
+        path: '/a_propos',
+        name: 'a_propos',
+        component: A_Propos
     },
+        {
+        path: '/contact',
+        name: 'contact',
+        component: Contact
+    },
+    // Ajoutez d'autres routes ici si nécessaire
   ],
-  
-  // Permet de garder l'historique de navigation
-  history: createWebHistory(import.meta.env.BASE_URL),
+
   
   // Cette fonction permet de styliser le lien actif dans la navbar
   linkActiveClass: 'active',
