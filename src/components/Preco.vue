@@ -10,7 +10,6 @@
               <h3 class="titre">{{ game.titre }}</h3>
               <h3 class="prix">{{ game.price }}</h3>
             </div>
-            <h2></h2>
           </div>
         </li>
       </ul>

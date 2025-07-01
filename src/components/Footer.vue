@@ -2,10 +2,10 @@
   <footer>
     <p class="footer-text">&copy; 2025 Instant Geek</p>
     <div class="footer-links">
-      <a class="footer-link" href="/about">À propos</a> |
-      <a class="footer-link" href="/privacy-policy">Politique de confidentialité</a> |
-      <a class="footer-link" href="/terms-of-service">Conditions de ventes</a> |
-      <a class="footer-link" href="/contact">Nous Contacter</a>
+      <router-link class="footer-link" to="/a_propos">À propos</router-link> |
+      <router-link class="footer-link" to="/politique">Politique de confidentialité</router-link>  |
+      <router-link class="footer-link" to="/conditions">Conditions de ventes</router-link>
+      <router-link class="footer-link" to="/contact">Nous Contacter</router-link>
     </div>
 
     <div>
@@ -147,7 +147,7 @@ footer {
   text-align: center;
   /* Styles cosmétiques existants */
   background-color: var(--solid-one);
-  color: var(--text-high-contrast);;
+  color: black;
   border-radius: 20px;
   padding: 0.5rem 1rem;
   cursor: pointer;
