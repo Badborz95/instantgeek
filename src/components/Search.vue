@@ -6,6 +6,7 @@
                 <select v-model="selectedPlatform" @change="filterGames" class="form-select" aria-label="Filtre plateforme">
                     <option value="">Systèmes</option>
                     <option value="Steam">Steam</option>
+                    <option value="Epic Games">Epic games</option>
                     <option value="Switch">Nintendo Switch</option>
                     <option value="Playstation">PlayStation</option>
                     <option value="Xbox">Xbox Series</option>
@@ -146,6 +147,11 @@ function filterGames() {
 watch([searchQuery, selectedPlatform, selectedGenre], filterGames);
 
 onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    const platform = params.get('platform');
+    if (platform) {
+        selectedPlatform.value = platform;
+    }
     fetchAllGames();
 });
 </script>
