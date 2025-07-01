@@ -77,7 +77,7 @@ export const useAuthStore = defineStore('auth', {
       });
     },
 
-    // NOUVEAU : Action pour mettre à jour le profil
+    //Action pour mettre à jour le profil
     async updateUserProfile(dataToUpdate) {
       if (!this.user) throw new Error("Utilisateur non connecté.");
       
