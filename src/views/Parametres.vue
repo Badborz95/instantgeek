@@ -3,11 +3,17 @@
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
-          <div class="card" v-if="!authStore.isLoading">
+          <div v-if="authStore.isLoading" class="text-center py-5">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+          
+          <div v-else class="card">
             <div class="card-header">
               <h1>Paramètres du compte</h1>
             </div>
-            <div class="card-body" v-if="authStore.isLoggedIn">
+            <div v-if="authStore.isLoggedIn" class="card-body">
               
               <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
               <div v-if="errorMessage" class="alert alert-warning">{{ errorMessage }}</div>
@@ -71,6 +77,10 @@
                   <button @click="goBack" class="btn btn-secondary">Retour</button>
               </div>
             </div>
+            <div v-else class="card-body text-center">
+                <p>Vous devez être connecté pour accéder à vos paramètres.</p>
+                <router-link to="/connexion" class="btn btn-primary">Se connecter</router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -82,12 +92,13 @@
 import { ref, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
-import { deleteUserAccount } from '../services/authService';
+import { deleteUserAccount } from '../services/authService'; // On importe la fonction unifiée
 
 const router = useRouter();
+// On instancie le store Pinia, notre source de vérité
 const authStore = useAuthStore();
 
-// Formulaire local pour éviter de muter le store directement
+// On utilise un 'ref' local pour le formulaire pour éviter de modifier le store directement
 const form = ref({
   firstname: '',
   username: '',
@@ -102,12 +113,12 @@ const form = ref({
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// Synchronise le formulaire local avec les données du store à chaque changement
+// watchEffect se déclenche dès que les données du store sont prêtes,
+// ce qui résout les problèmes de timing au chargement de la page.
 watchEffect(() => {
   if (authStore.userData) {
     form.value.firstname = authStore.userData.firstname || '';
     form.value.username = authStore.userData.username || '';
-    // Fusionne l'adresse de facturation pour éviter les erreurs si elle est absente
     form.value.billingAddress = {
       street: authStore.userData.billingAddress?.street || '',
       city: authStore.userData.billingAddress?.city || '',
@@ -117,48 +128,70 @@ watchEffect(() => {
   }
 });
 
-// Gère la sauvegarde en appelant l'action du store
 async function handleUpdateProfile() {
   successMessage.value = '';
   errorMessage.value = '';
   try {
     const dataToUpdate = {
-      ...form.value,
+      firstname: form.value.firstname,
+      username: form.value.username,
+      billingAddress: form.value.billingAddress,
       displayName: `${form.value.firstname} ${form.value.username}`
     };
+    
+    // Appelle l'action centralisée du store.
+    // C'est le store qui se chargera d'appeler le authService,
+    // qui lui-même utilisera updateDoc pour parler à Firestore.
     await authStore.updateUserProfile(dataToUpdate);
     successMessage.value = "Vos informations ont été mises à jour avec succès !";
   } catch (e) {
     errorMessage.value = "Une erreur est survenue lors de la mise à jour.";
-    console.error(e);
+    console.error("Erreur de mise à jour du profil:", e);
   }
 }
 
-// Fonctions inchangées
-function goBack() { router.back(); }
 async function handleDeleteAccount() {
   errorMessage.value = '';
-  if (!confirm("Êtes-vous certain de vouloir supprimer votre compte ?")) return;
-  const password = prompt("Veuillez entrer votre mot de passe pour confirmer :");
-  if (!password) return;
+  if (!confirm("Êtes-vous absolument certain de vouloir supprimer votre compte ? Cette action est irréversible.")) return;
+
+  // On détermine si un mot de passe est nécessaire en se basant sur le provider
+  const providerId = authStore.user?.providerData[0]?.providerId;
+  let password = null;
+
+  if (providerId === 'password') {
+      password = prompt("Pour confirmer la suppression, veuillez entrer votre mot de passe :");
+      if (!password) {
+        errorMessage.value = "La suppression a été annulée. Mot de passe non fourni.";
+        return;
+      }
+  }
 
   try {
-    await deleteUserAccount(password);
-    alert("Compte supprimé.");
+    // Appelle le service unifié pour la suppression
+    await deleteUserAccount(password); 
+    
+    alert("Votre compte a été supprimé avec succès.");
     router.push('/');
+    
   } catch (e) {
-    errorMessage.value = "Erreur lors de la suppression : " + e.message;
+    console.error("Erreur lors de la suppression du compte:", e);
+    if (e.code === 'auth/wrong-password') {
+        errorMessage.value = "Mot de passe incorrect. La suppression a été annulée.";
+    } else if (e.code === 'auth/popup-closed-by-user') {
+        errorMessage.value = "La fenêtre de confirmation a été fermée. Suppression annulée.";
+    } else {
+        errorMessage.value = e.message || "Une erreur est survenue lors de la suppression.";
+    }
   }
 }
 
-// Navigation retour
-function goBack() {
-  router.back();
+function goBack() { 
+  router.back(); 
 }
 </script>
 
 <style scoped>
-/* Vos styles sont conservés */
+/* Votre CSS est parfait et reste inchangé */
 .settings-page-wrapper {
   background-color: var(--background-one, #01070A);
   min-height: 100vh;
