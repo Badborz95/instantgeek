@@ -63,6 +63,7 @@
           <li class="nav-item"><router-link class="nav-link" to="/precommandes">Précommandes</router-link></li>
           <li class="nav-item"><router-link class="nav-link" to="/prochaines-sorties">Prochaines sorties</router-link></li>
         </ul>   
+
 <!-- Icônes et actions de droite -->
         <div class="d-flex align-items-center ms-auto">
           
@@ -82,7 +83,7 @@
           <form class="search-form d-none d-lg-flex" :class="{ 'active': isSearchActive }" @submit.prevent="performSearch" ref="searchFormRef">
             <input 
               class="form-control me-2 search-input" 
-              type="button" 
+              type="search" 
               placeholder="Rechercher..." 
               aria-label="Search"
               v-model="searchQuery"
@@ -105,7 +106,7 @@
               <li class="d-lg-none"><router-link class="dropdown-item" to="/prochaines-sorties">Prochaines sorties</router-link></li>
               <li class="d-lg-none" v-if="!authStore.isLoggedIn"><hr class="dropdown-divider"></li>
               <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/mes-achats">Mes achats</router-link></li>
-              <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span v-if="authStore.userWishlistCount !== null" class="badge bg-danger rounded-pill">{{ authStore.userWishlistCount }}</span><span v-else class="badge bg-danger rounded-pill">0</span></router-link></li>
+              <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item d-flex justify-content-between align-items-center" to="/wishlist">Wishlist <span class="badge bg-danger rounded-pill">{{ wishlistStore.wishlistCount }}</span></router-link></li>
               <li v-if="authStore.isLoggedIn"><router-link class="dropdown-item" to="/parametres">Paramètres</router-link></li>
               <li v-if="authStore.isLoggedIn"><hr class="dropdown-divider"></li>
               <li>
@@ -136,11 +137,13 @@ import { isDarkMode, toggleDarkMode } from '../composables/darkMode.js';
 import { searchQuery } from '../composables/searchState.js';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useWishlistStore } from '../stores/wishlistStore';
 
 // --- INIT ---
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const wishlistStore = useWishlistStore();
 
 
 const isProfileDropdownOpen = ref(false);
@@ -272,18 +275,6 @@ const currentStep = computed(() => {
     default: return 0;
   }
 });
-
-watch(() => authStore.user, (newUser) => {
-  if (unsubscribeWishlist) unsubscribeWishlist();
-  if (newUser) {
-    const wishlistDocRef = doc(db, 'users', newUser.uid, 'privateData', 'wishlist');
-    unsubscribeWishlist = onSnapshot(wishlistDocRef, (docSnap) => {
-      authStore.userWishlistCount = docSnap.exists() && docSnap.data().items ? docSnap.data().items.length : 0;
-    });
-  } else {
-    authStore.userWishlistCount = null;
-  }
-}, { immediate: true });
 </script>
 
 <style scoped>

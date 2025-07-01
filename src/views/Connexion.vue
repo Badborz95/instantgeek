@@ -4,14 +4,16 @@
       <div class="login-form-section p-4 d-flex flex-column justify-content-center align-items-center text-center">
         <h2 class="login-title mb-4">Se connecter</h2>
 
+        <div v-if="errorMessage" class="alert alert-danger w-100 mb-3">{{ errorMessage }}</div>
+
         <div class="social-icons d-flex justify-content-center w-100 mb-4">
           <button @click="handleGoogleSignIn" class="btn social-icon-btn google-btn me-3" aria-label="Se connecter avec Google">
             <i class="bi bi-google"></i>
           </button>
-          <button class="btn social-icon-btn discord-btn me-3" aria-label="Se connecter avec Discord">
+          <button @click="redirectToDiscord" class="btn social-icon-btn discord-btn me-3" aria-label="Se connecter avec Discord">
             <i class="bi bi-discord"></i>
           </button>
-          <button class="btn social-icon-btn facebook-btn" aria-label="Se connecter avec Facebook">
+          <button @click="handleFacebookSignIn" class="btn social-icon-btn facebook-btn" aria-label="Se connecter avec Facebook">
             <i class="bi bi-facebook"></i>
           </button>
         </div>
@@ -69,34 +71,62 @@
 
 <script setup>
 import { ref } from 'vue';
-import { signIn, signInWithGoogle, sendPasswordResetEmail } from '../services/authService';
+import { signIn, signInWithGoogle, signInWithFacebook, sendPasswordResetEmail } from '../services/authService';
 import { useRouter } from 'vue-router';
 import '../style.css'; 
 
 const email = ref('');
 const password = ref('');
 const router = useRouter();
+// AJOUT : Déclaration de la variable pour les messages d'erreur
+const errorMessage = ref('');
 
+// CORRIGÉ : Utilise la nouvelle gestion d'erreur
 async function handleLogin() {
+  errorMessage.value = '';
   try {
     await signIn(email.value, password.value);
-    alert('Connexion réussie !');
     router.push('/');
   } catch (e) {
-    alert('Erreur lors de la connexion : ' + e.message);
+    console.error("Erreur de connexion:", e.code);
+    errorMessage.value = 'Email ou mot de passe incorrect.';
   }
 }
 
+// CORRIGÉ : Utilise la nouvelle gestion d'erreur
 async function handleGoogleSignIn() {
+  errorMessage.value = '';
   try {
     await signInWithGoogle();
-    alert('Connexion Google réussie !');
     router.push('/');
   } catch (e) {
-    alert('Erreur avec Google : ' + e.message);
+    console.error("Erreur avec Google:", e);
+    errorMessage.value = 'Impossible de se connecter avec Google pour le moment.';
   }
 }
 
+// CORRIGÉ : La fonction est maintenant fonctionnelle car `errorMessage` est déclaré
+async function handleFacebookSignIn() {
+  errorMessage.value = '';
+  try {
+    await signInWithFacebook();
+    router.push('/');
+  } catch (e) {
+    console.error("Erreur avec Facebook:", e);
+    errorMessage.value = 'Impossible de se connecter avec Facebook. Veuillez vérifier la configuration.';
+  }
+}
+
+// Fonction pour Discord (non modifiée, mais incluse pour l'exhaustivité)
+function redirectToDiscord() {
+    const clientId = "VOTRE_CLIENT_ID_DISCORD";
+    const redirectUri = encodeURIComponent(window.location.origin + "/callback/discord"); 
+    const scope = encodeURIComponent("identify email"); 
+    const discordAuthUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}`;
+    window.location.href = discordAuthUrl;
+}
+
+// Fonction de réinitialisation du mot de passe (non modifiée)
 async function handlePasswordReset() {
   if (!email.value) {
     alert('Veuillez entrer votre adresse email dans le champ "Email" pour réinitialiser votre mot de passe.');
