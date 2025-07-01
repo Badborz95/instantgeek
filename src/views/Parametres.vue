@@ -3,11 +3,17 @@
     <div class="container py-5">
       <div class="row justify-content-center">
         <div class="col-md-8">
-          <div class="card">
+          <div v-if="authStore.isLoading" class="text-center">
+            <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+          
+          <div v-else class="card">
             <div class="card-header">
               <h1>Paramètres du compte</h1>
             </div>
-            <div class="card-body">
+            <div v-if="authStore.isLoggedIn" class="card-body">
               
               <h3 class="mb-3">Informations Personnelles</h3>
               
@@ -17,25 +23,25 @@
               <form @submit.prevent="handleUpdateProfile">
                 <div class="mb-3 text-start">
                   <label for="email" class="form-label">Adresse e-mail</label>
-                  <input type="email" id="email" class="form-control" :value="user?.email" disabled>
+                  <input type="email" id="email" class="form-control" :value="authStore.user.email" disabled>
                   <div class="form-text">L'adresse e-mail ne peut pas être modifiée.</div>
                 </div>
 
                 <div class="row">
                   <div class="col-md-6 mb-3 text-start">
                     <label for="firstname" class="form-label">Prénom</label>
-                    <input type="text" id="firstname" class="form-control" v-model="firstname">
+                    <input type="text" id="firstname" class="form-control" v-model="form.firstname">
                   </div>
                   <div class="col-md-6 mb-3 text-start">
                     <label for="username" class="form-label">Nom</label>
-                    <input type="text" id="username" class="form-control" v-model="username">
+                    <input type="text" id="username" class="form-control" v-model="form.username">
                   </div>
                 </div>
 
                 <div class="mb-3 text-start">
                   <label for="country" class="form-label">Pays</label>
-                  <select id="country" class="form-control" v-model="country">
-                    <option v-if="!country" value="">Sélectionnez votre pays</option>
+                  <select id="country" class="form-control" v-model="form.country">
+                    <option value="">Sélectionnez votre pays</option>
                     <option v-for="c in countriesList" :key="c.cca3" :value="c.name.common">
                       {{ c.name.common }}
                     </option>
@@ -69,49 +75,39 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watchEffect } from 'vue';
 import { useRouter } from 'vue-router';
-import { auth, db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
-import { 
-  deleteEmailPasswordUser, 
-  deleteOauthUser, 
-  updateUserProfile 
-} from '../services/authService';
+import { useAuthStore } from '../stores/authStore';
+import { deleteUserAccount } from '../services/authService';
 
 const router = useRouter();
-const user = auth.currentUser;
+const authStore = useAuthStore();
 
-// Références pour les données du formulaire
-const firstname = ref('');
-const username = ref('');
-const country = ref('');
+// On utilise un 'ref' local pour le formulaire, pour ne pas modifier le store directement
+const form = ref({
+  firstname: '',
+  username: '',
+  country: '',
+});
+
 const countriesList = ref([]);
-
-// Référence pour connaître le type de connexion de l'utilisateur
-const providerId = ref('');
-
-// Références pour les messages de feedback
 const successMessage = ref('');
 const errorMessage = ref('');
 
-// Charge les données au montage du composant
-onMounted(async () => {
-  if (user) {
-    providerId.value = user.providerData[0]?.providerId || '';
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data();
-      firstname.value = userData.firstname || '';
-      username.value = userData.username || '';
-      country.value = userData.country || '';
-    }
+// on utilise watchEffect pour remplir le formulaire de manière réactive
+// Cette fonction se déclenchera automatiquement dès que authStore.userData sera disponible
+watchEffect(() => {
+  if (authStore.userData) {
+    form.value.firstname = authStore.userData.firstname || '';
+    form.value.username = authStore.userData.username || '';
+    form.value.country = authStore.userData.country || '';
   }
+});
+
+onMounted(async () => {
   await fetchCountries();
 });
 
-// Charge la liste des pays
 async function fetchCountries() {
   try {
     const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3');
@@ -123,22 +119,23 @@ async function fetchCountries() {
   }
 }
 
-// Sauvegarde les modifications du profil
 async function handleUpdateProfile() {
   successMessage.value = '';
   errorMessage.value = '';
-  if (!user) {
+
+  if (!authStore.user) {
     errorMessage.value = "Utilisateur non trouvé.";
     return;
   }
+
   const dataToUpdate = {
-    firstname: firstname.value,
-    username: username.value,
-    country: country.value,
-    displayName: `${firstname.value} ${username.value}`
+    ...form.value,
+    displayName: `${form.value.firstname} ${form.value.username}`
   };
+
   try {
-    await updateUserProfile(user.uid, dataToUpdate);
+    // On appelle l'action centralisée du store
+    await authStore.updateUserProfile(dataToUpdate);
     successMessage.value = "Vos informations ont été mises à jour avec succès !";
   } catch (e) {
     errorMessage.value = "Une erreur est survenue lors de la mise à jour.";
@@ -146,48 +143,33 @@ async function handleUpdateProfile() {
   }
 }
 
-// Gère la suppression du compte en fonction du type d'utilisateur
 async function handleDeleteAccount() {
   errorMessage.value = '';
-  const isConfirmed = confirm("Êtes-vous absolument certain de vouloir supprimer votre compte ? Cette action est irréversible.");
-  if (!isConfirmed) return;
+  if (!confirm("Êtes-vous absolument certain de vouloir supprimer votre compte ? Cette action est irréversible.")) return;
+  
+  const password = prompt("Pour confirmer la suppression, veuillez entrer votre mot de passe :");
+  if (!password) {
+    errorMessage.value = "La suppression a été annulée. Mot de passe non fourni.";
+    return;
+  }
 
   try {
-    if (providerId.value === 'password') {
-      const password = prompt("Pour confirmer, veuillez entrer votre mot de passe :");
-      if (!password) {
-        errorMessage.value = "La suppression a été annulée. Mot de passe non fourni.";
-        return;
-      }
-      await deleteEmailPasswordUser(password);
-    } else if (providerId.value === 'google.com' || providerId.value === 'facebook.com') {
-      alert("Une fenêtre va s'ouvrir pour confirmer votre identité via " + providerId.value + " avant la suppression.");
-      await deleteOauthUser();
-    } else {
-      throw new Error("Type de compte non pris en charge pour la suppression automatique.");
-    }
+    // On utilise un service qui gère les différents cas (email/password, google, etc.)
+    await deleteUserAccount(password); 
     alert("Votre compte a été supprimé avec succès.");
     router.push('/');
   } catch (e) {
     console.error("Erreur lors de la suppression du compte:", e);
-    if (e.code === 'auth/wrong-password') {
-      errorMessage.value = "Mot de passe incorrect. La suppression a été annulée.";
-    } else if (e.code === 'auth/popup-closed-by-user') {
-      errorMessage.value = "La fenêtre de confirmation a été fermée. La suppression est annulée.";
-    } else {
-      errorMessage.value = "Une erreur est survenue lors de la suppression du compte.";
-    }
+    errorMessage.value = e.message || "Une erreur est survenue lors de la suppression du compte.";
   }
 }
 
-// Navigation retour
 function goBack() {
   router.back();
 }
 </script>
 
 <style scoped>
-/* Utilisation de vos variables CSS du .dark-mode */
 .settings-page-wrapper {
   background-color: var(--background-one, #01070A);
   min-height: 100vh;
