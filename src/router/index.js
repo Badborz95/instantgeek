@@ -14,6 +14,8 @@ import NotFound from '../views/Page404.vue';
 import Recherche from '../views/Recherche.vue';
 import Parametres from '../views/Parametres.vue';
 import Wishlist from '../views/Wishlist.vue'
+import Validation from '../views/Validation.vue';
+import MesAchats from '../views/MesAchats.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +61,16 @@ const router = createRouter({
         component: Panier
     },
     {
+      path: '/validation/:orderId',
+      name: 'validation',
+      component: Validation
+    },
+    {
+        path: '/mes-achats',
+        name: 'mesAchats',
+        component: MesAchats
+    },
+    {
         path: '/game/:id',
         name: 'gameDetailPage',
         component: GameDetail
@@ -74,23 +86,15 @@ const router = createRouter({
       component: Recherche
     },
     {
-        path: '/game/:id',
-        name: 'gameDetailPage',
-        component: GameDetail
-    },
-    {
-        path: '/:pathMatch(.*)*',
-        name: 'not-found',
-        component: NotFound
-    },
-    {
         path: '/wishlist',
         name: 'wishlist',
         component: Wishlist
     },
     // Ajoutez d'autres routes ici si nécessaire
   ],
-
+  
+  // Permet de garder l'historique de navigation
+  history: createWebHistory(import.meta.env.BASE_URL),
   
   // Cette fonction permet de styliser le lien actif dans la navbar
   linkActiveClass: 'active',

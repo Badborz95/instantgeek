@@ -38,18 +38,82 @@
       <div class="col-lg-4">
         <div class="order-summary">
           <h3 class="summary-title">RÉSUMÉ DE LA COMMANDE</h3>
+          
           <div class="summary-details mt-4">
             <div class="d-flex justify-content-between fw-bold summary-total-final">
               <span>TOTAL :</span>
               <span class="display-6">{{ cartStore.totalPrice }} €</span>
             </div>
-            <p class="mt-3 text-muted small">
-              *Livraison instantanée par clé numérique.
-            </p>
+            <p class="mt-3 text-muted small">*Livraison instantanée par clé numérique.</p>
           </div>
 
-          <button class="btn-validate" :disabled="cartStore.items.length === 0">
-            VALIDER MA COMMANDE
+          <hr class="my-4">
+
+          <div class="address-section">
+            <h4 class="address-title">Adresse de facturation</h4>
+
+            <div v-if="!authStore.isLoggedIn" class="address-box-action">
+              <p>Veuillez vous <router-link to="/connexion">connecter</router-link> pour utiliser une adresse enregistrée.</p>
+            </div>
+
+            <div v-else-if="!authStore.hasCompleteBillingAddress" class="address-box-action">
+              <p>Aucune adresse de facturation trouvée.</p>
+              <router-link to="/parametres" class="btn btn-sm btn-outline-primary">
+                Ajouter une adresse
+              </router-link>
+            </div>
+            
+            <div v-else class="address-box-saved">
+                <div class="address-details">
+                    <strong>{{ authStore.userData.firstname }} {{ authStore.userData.username }}</strong><br>
+                    {{ authStore.billingAddress.street }}<br>
+                    {{ authStore.billingAddress.postalCode }} {{ authStore.billingAddress.city }}<br>
+                    {{ authStore.billingAddress.country }}
+                </div>
+                <router-link to="/parametres" class="edit-address-btn" aria-label="Modifier l'adresse">
+                    <i class="bi bi-pencil-square"></i>
+                </router-link>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="payment-section">
+            <h4 class="payment-title">Informations de paiement</h4>
+            <form class="credit-card-form">
+              <div class="mb-3">
+                <label for="card-name" class="form-label">Nom sur la carte</label>
+                <input type="text" id="card-name" class="form-control" v-model="cardDetails.name" required>
+              </div>
+              <div class="mb-3">
+                <label for="card-number" class="form-label">Numéro de carte</label>
+                <input type="text" id="card-number" class="form-control" placeholder="0000 0000 0000 0000" v-model="cardDetails.number" maxlength="19" required>
+              </div>
+              <div class="row">
+                <div class="col-7">
+                  <label for="card-expiry" class="form-label">Expiration</label>
+                  <div class="d-flex">
+                    <select id="card-expiry-month" class="form-select me-2" v-model="cardDetails.expiryMonth" required>
+                      <option disabled value="">Mois</option>
+                      <option v-for="n in 12" :key="n" :value="n">{{ n.toString().padStart(2, '0') }}</option>
+                    </select>
+                    <select id="card-expiry-year" class="form-select" v-model="cardDetails.expiryYear" required>
+                      <option disabled value="">Année</option>
+                      <option v-for="n in 10" :key="n" :value="currentYear + n - 1">{{ currentYear + n - 1 }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-5">
+                  <label for="card-cvc" class="form-label">CVC</label>
+                  <input type="text" id="card-cvc" class="form-control" placeholder="123" v-model="cardDetails.cvc" maxlength="4" required>
+                </div>
+              </div>
+            </form>
+          </div>
+
+
+          <button @click="proceedToValidation" class="btn-validate mt-4" :disabled="!canProceedToPayment">
+            PAYER {{ cartStore.totalPrice }} €
           </button>
           <router-link to="/" class="btn btn-continue-shopping mt-3">
             Continuer mes achats
@@ -61,15 +125,150 @@
 </template>
 
 <script setup>
+import { computed, ref } from 'vue';
 import Navbar from '../components/Navbar.vue';
 import { useCartStore } from '../stores/cartStore';
+import { useAuthStore } from '../stores/authStore';
 import { useRouter } from 'vue-router';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const cartStore = useCartStore();
+const authStore = useAuthStore(); 
 const router = useRouter();
+
+// Vérifie si l'utilisateur peut procéder au paiement
+const canProceedToPayment = computed(() => {
+  return cartStore.items.length > 0 && 
+         authStore.isLoggedIn && 
+         authStore.hasCompleteBillingAddress &&
+         isCardFormValid.value;
+});
+
+const currentYear = new Date().getFullYear();
+const cardDetails = ref({
+  name: '',
+  number: '',
+  expiryMonth: '',
+  expiryYear: '',
+  cvc: ''
+});
+
+const isCardFormValid = computed(() => {
+  return cardDetails.value.name.trim() !== '' &&
+         cardDetails.value.number.length >= 16 &&
+         cardDetails.value.expiryMonth !== '' &&
+         cardDetails.value.expiryYear !== '' &&
+         cardDetails.value.cvc.length >= 3;
+});
+
+async function proceedToValidation() {
+    if (!canProceedToPayment.value) {
+        alert("Veuillez vous connecter et renseigner une adresse de facturation complète pour continuer.");
+        return;
+    }
+
+    try {
+        const orderData = {
+            userId: authStore.user.uid,
+            createdAt: serverTimestamp(),
+            items: JSON.parse(JSON.stringify(cartStore.items)),
+            totalPrice: cartStore.totalPrice,
+            billingAddress: JSON.parse(JSON.stringify(authStore.billingAddress)),
+            status: 'validée'
+        };
+
+        console.log("Objet orderData envoyé à Firestore :", orderData);
+        console.log('État de authStore.user au moment du clic :', authStore.user);
+        console.log('État de authStore.billingAddress :', authStore.billingAddress);
+
+        const ordersCollectionRef = collection(db, 'orders');
+        const newOrderRef = await addDoc(ordersCollectionRef, orderData);
+
+        cartStore.clearCart();
+
+        router.push({ name: 'validation', params: { orderId: newOrderRef.id } });
+
+    } catch (error) {
+        console.error("Erreur lors de la création de la commande : ", error);
+        alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
+    }
+}
 </script>
 
 <style scoped>
+/* Vos styles existants sont conservés, on ajoute juste ceux pour les nouveaux blocs */
+.address-section, .payment-section {
+  text-align: left;
+}
+
+.address-title, .payment-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-two);
+  margin-bottom: 1rem;
+}
+
+.address-box-action {
+  background-color: var(--interactive-comp-one);
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+.address-box-action p {
+  margin-bottom: 0.5rem;
+}
+
+.address-box-saved {
+  background-color: var(--interactive-comp-one);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border: 1px solid var(--border-separator-three);
+}
+
+.address-details {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-one);
+}
+
+.edit-address-btn {
+  color: var(--solid-one);
+  font-size: 1.3rem;
+  text-decoration: none;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+.payment-option {
+    background-color: var(--interactive-comp-one);
+    border: 1px solid var(--border-separator-three);
+    color: var(--text-one);
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+.payment-option:hover {
+    border-color: var(--solid-one);
+}
+.payment-option.active {
+    border-color: var(--solid-one);
+    background-color: var(--interactive-comp-three);
+    color: var(--text-two);
+    box-shadow: 0 0 8px rgba(var(--solid-one-rgb), 0.3);
+}
+.payment-option i {
+    margin-right: 0.5rem;
+}
+
+/* Le reste de vos styles .panier-container, etc., est inchangé */
 /* Le conteneur principal hérite de la couleur de fond via la balise <main> ou <body> */
 /* et de la couleur de texte par défaut. */
 .panier-container {
