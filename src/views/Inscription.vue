@@ -103,14 +103,13 @@
 </template>
 
 <script setup>
-// NOUVEAU : Import de onMounted pour charger les pays au démarrage
 import { ref, onMounted } from 'vue';
 import { signUp, signInWithGoogle } from '../services/authService';
 import { useRouter } from 'vue-router';
-import { db } from '../firebase';
-import { doc, setDoc } from 'firebase/firestore';
+// Les imports 'db', 'doc', 'setDoc' ne sont plus nécessaires ici car la logique est déplacée dans authService.js
+// import { db } from '../firebase';
+// import { doc, setDoc } from 'firebase/firestore';
 
-// Variables for form fields
 const email = ref('');
 const password = ref('');
 const username = ref('');
@@ -118,35 +117,28 @@ const firstname = ref('');
 const birthdate = ref('');
 const country = ref('');
 
-// NOUVEAU : Une variable réactive pour stocker la liste des pays
+
 const countriesList = ref([]);
 
 const router = useRouter();
 
-// NOUVEAU : Une fonction pour récupérer la liste des pays depuis une API externe
 async function fetchCountries() {
   try {
     const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca3');
     if (!response.ok) throw new Error('Failed to fetch countries');
     const data = await response.json();
-    // Trie les pays par ordre alphabétique pour une meilleure expérience
     countriesList.value = data.sort((a, b) => a.name.common.localeCompare(b.name.common));
   } catch (error) {
     console.error(error.message);
-    // En cas d'erreur, la liste restera simplement vide.
   }
 }
 
-// NOUVEAU : Exécute la fonction fetchCountries une fois que le composant est monté
 onMounted(() => {
   fetchCountries();
 });
 
-// MODIFIÉ : La fonction handleSignUp inclut maintenant la vérification de l'âge
 async function handleSignUp() {
 
-  // NOUVEAU : Bloc de vérification de l'âge.
-  // Ce code s'exécute AVANT toute interaction avec Firebase.
   const today = new Date();
   const birthDate = new Date(birthdate.value);
   const eighteenYearsAgo = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
@@ -156,24 +148,24 @@ async function handleSignUp() {
     return; // Stoppe l'exécution de la fonction si l'utilisateur est mineur.
   }
 
-  // Le reste de votre code original reste inchangé.
   try {
-    const user = await signUp(email.value, password.value);
+    // Crée un objet userData avec toutes les informations collectées
+    const userData = {
+      username: username.value,
+      firstname: firstname.value,
+      birthdate: birthdate.value,
+      country: country.value
+    };
+
+    // Passe l'objet userData à la fonction signUp
+    const user = await signUp(email.value, password.value, userData);
 
     if (user && user.uid) {
-      await setDoc(doc(db, "users", user.uid), {
-        email: email.value,
-        username: username.value,
-        firstname: firstname.value,
-        birthdate: birthdate.value,
-        country: country.value,
-        createdAt: new Date()
-      }, { merge: true });
-
       alert('Compte créé avec succès !');
       router.push('/');
     } else {
-      throw new Error("L'utilisateur n'a pas été créé correctement par Firebase.");
+      // Cette erreur devrait être gérée par la fonction signUp si elle n'arrive pas à créer l'utilisateur
+      throw new Error("Erreur inattendue lors de la création du compte.");
     }
   } catch (e) {
     alert('Erreur lors de l\'inscription : ' + e.message);
@@ -182,9 +174,13 @@ async function handleSignUp() {
 
 async function handleGoogleSignIn() {
   try {
+    // Pour Google, la création du document utilisateur et la fusion des données est gérée
+    // directement dans _signInWithProvider de authService.js
     const user = await signInWithGoogle();
-    alert('Connexion Google réussie !');
-    router.push('/');
+    if (user) {
+      alert('Connexion Google réussie !');
+      router.push('/');
+    }
   } catch (e) {
     alert('Erreur avec Google : ' + e.message);
   }
@@ -192,27 +188,25 @@ async function handleGoogleSignIn() {
 </script>
 
 <style scoped>
-/* Global Wrapper for the Login Page */
+/* Votre style existant */
 .login-page-wrapper {
-  background-color: var(--background-one); /* Dark background color */
+  background-color: var(--background-one);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
 
-/* Container for the Card (Form + Image) */
 .login-card-container {
   width: 90%;
   max-width: 1300px;
-  height: 780px; /* Hauteur actuelle */
+  height: 780px;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   display: flex;
 }
 
-/* Left Section: Login Form Styles */
 .login-form-section {
   background-color: var(--interactive-comp-one);
   flex: 0 0 40%;
@@ -233,7 +227,6 @@ async function handleGoogleSignIn() {
   letter-spacing: 2px;
 }
 
-/* Form Group and Labels */
 .form-group {
   width: 100%;
 }
@@ -245,7 +238,6 @@ async function handleGoogleSignIn() {
   color: var(--text-high-contrast) !important;
 }
 
-/* Input Fields */
 .login-input {
   background-color: var(--interactive-comp-two);
   border: 1px solid var(--border-separator-one);
@@ -266,7 +258,6 @@ async function handleGoogleSignIn() {
   color: #fff;
 }
 
-/* Main Button */
 .login-btn {
   background-color: var(--interactive-comp-three);
   border: none;
@@ -285,7 +276,6 @@ async function handleGoogleSignIn() {
   color: var(--text-high-contrast);
 }
 
-/* Small links (e.g., S'inscrire, Mot de passe oublié, Retour) */
 .small-links {
   font-size: 0.85rem;
   font-weight: 500;
@@ -302,7 +292,6 @@ async function handleGoogleSignIn() {
   color: var(--text-one) !important;
 }
 
-/* Social Login Separator (Not present in this template, but keeping styles for consistency) */
 .social-login-separator {
   font-size: 0.9rem;
   font-weight: 500;
@@ -311,7 +300,6 @@ async function handleGoogleSignIn() {
   width: 100%;
 }
 
-/* Social Icons (Not present in this template, but keeping styles for consistency) */
 .social-icons {
   margin-top: 1rem;
   margin-bottom: 1.5rem;
@@ -343,19 +331,17 @@ async function handleGoogleSignIn() {
 .discord-btn i { color: #7289DA; }
 .facebook-btn i { color: #3b5998; }
 
-/* Right Section: Image */
 .login-image-section {
-  background-color: #F8F8F8; /* Couleur de fond de secours */
+  background-color: #F8F8F8;
   flex: 0 0 60%;
   border-radius: 0 15px 15px 0;
   overflow: hidden;
-  position: relative; /* AJOUTÉ: Nécessaire pour le positionnement absolu du bouton de fermeture */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Style for the actual background image */
 .login-background-image {
   width: 100%;
   height: 100%;
@@ -364,19 +350,18 @@ async function handleGoogleSignIn() {
   display: block;
 }
 
-/* Style for the Close Button */
 .close-button {
   position: absolute;
-  top: 15px; /* Distance du haut */
-  right: 15px; /* Distance de la droite */
-  color: #fff; /* Couleur de la croix */
-  font-size: 1.8rem; /* Taille de l'icône */
-  text-decoration: none; /* Pas de soulignement */
-  z-index: 10; /* S'assure qu'elle est au-dessus de l'image */
-  background-color: rgba(0, 0, 0, 0.4); /* Fond semi-transparent pour la visibilité */
-  border-radius: 50%; /* Bouton rond */
-  width: 40px; /* Largeur du bouton */
-  height: 40px; /* Hauteur du bouton */
+  top: 15px; 
+  right: 15px;
+  color: #fff;
+  font-size: 1.8rem;
+  text-decoration: none;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  width: 40px; 
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -384,11 +369,10 @@ async function handleGoogleSignIn() {
 }
 
 .close-button:hover {
-  background-color: rgba(0, 0, 0, 0.6); /* Fond plus sombre au survol */
-  color: var(--interactive-comp-four); /* Couleur d'accent au survol */
+  background-color: rgba(0, 0, 0, 0.6);
+  color: var(--interactive-comp-four);
 }
 
-/* Media Queries for Responsiveness */
 @media (max-width: 767.98px) {
   .login-card-container {
     flex-direction: column;
