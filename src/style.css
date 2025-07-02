@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
 :root{
 
     --background-one:  #F2FAFB;
@@ -31,6 +33,11 @@
     --text-two : #BCEAFC;
     --text-high-contrast: #FFFFFF;
 }
+
+h1, h2, label{
+  font-family: 'Luckiest Guy';
+}
+
     
 main {
     background-color: var(--background-one);
