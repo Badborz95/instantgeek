@@ -1,8 +1,8 @@
 <template>
   <div class="settings-page-wrapper">
-    <div class="container py-5">
+    <div class="container-fluid py-5">
       <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10">
+        <div class="col-lg-10 col-md-12">
           <div v-if="authStore.isLoading" class="text-center py-5">
             <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
               <span class="visually-hidden">Chargement...</span>
@@ -14,16 +14,16 @@
               <h1>Paramètres du compte</h1>
               <ul class="nav nav-tabs card-header-tabs mt-3">
                 <li class="nav-item">
-                  <a class="nav-link" :class="{ active: currentTab === 'profile' }" @click="currentTab = 'profile'">Informations Personnelles</a>
+                  <router-link class="nav-link" :class="{ active: currentTab === 'profile' }" to="/parametres?tab=profile">Informations Personnelles</router-link>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" :class="{ active: currentTab === 'address' }" @click="currentTab = 'address'">Adresse de Facturation</a>
+                  <router-link class="nav-link" :class="{ active: currentTab === 'address' }" to="/parametres?tab=address">Adresse de Facturation</router-link>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" :class="{ active: currentTab === 'cards' }" @click="currentTab = 'cards'">Mes Cartes (Démo)</a>
+                  <router-link class="nav-link" :class="{ active: currentTab === 'cards' }" to="/parametres?tab=cards">Mes Cartes (Démo)</router-link>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" :class="{ active: currentTab === 'danger' }" @click="currentTab = 'danger'">Zone de Danger</a>
+                  <router-link class="nav-link" :class="{ active: currentTab === 'danger' }" to="/parametres?tab=danger">Zone de Danger</router-link>
                 </li>
               </ul>
             </div>
@@ -59,9 +59,26 @@
               <div v-if="currentTab === 'address'">
                 <form @submit.prevent="handleUpdateProfile">
                   <h3 class="mb-3 mt-2 text-start">Adresse de Facturation</h3>
+                  
+                  <div class="mb-3 text-start">
+                    <label for="addressSearch" class="form-label">Rechercher une adresse</label>
+                    <input type="text" id="addressSearch" class="form-control" placeholder="Entrez une adresse..." 
+                           v-model="searchQuery" @input="debouncedAddressSearch">
+                    <div v-if="addressSuggestions.length && searchQuery.length > 2" class="list-group mt-2">
+                        <a href="#" class="list-group-item list-group-item-action" 
+                           v-for="suggestion in addressSuggestions" :key="suggestion.place_id"
+                           @click.prevent="selectAddressSuggestion(suggestion)">
+                            {{ suggestion.display_name }}
+                        </a>
+                    </div>
+                  </div>
+
                   <div class="mb-3 text-start">
                       <label for="country" class="form-label">Pays</label>
-                      <input type="text" id="country" class="form-control" v-model="form.billingAddress.country">
+                      <select id="country" class="form-control" v-model="form.billingAddress.country">
+                        <option value="">Sélectionnez un pays</option>
+                        <option v-for="country in countries" :key="country.code" :value="country.name">{{ country.name }}</option>
+                      </select>
                   </div>
 
                   <div class="mb-3 text-start">
@@ -167,13 +184,14 @@
 
 <script setup>
 import { ref, watchEffect, onMounted, onUnmounted, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { deleteUserAccount } from '../services/authService';
 import { collection, query, onSnapshot, deleteDoc, doc, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 
 const form = ref({
@@ -199,20 +217,26 @@ const cardNameInput = ref('');
 const cardNumberInput = ref('');
 const expiryInput = ref('');
 const cvcInput = ref('');
-const isAddCardFormVisible = ref(false); // Contrôle la visibilité du formulaire
+const isAddCardFormVisible = ref(false);
 const showAddCardSuccess = ref('');
 const showAddCardError = ref('');
+
+const countries = ref([]);
+
+const searchQuery = ref('');
+const addressSuggestions = ref([]);
+let searchTimeout = null; // Pour le debounce
 
 // --- Validation du formulaire d'ajout de carte ---
 const isAddCardFormValid = computed(() => {
   const [month, year] = expiryInput.value.split('/');
-  const currentYear = new Date().getFullYear() % 100; // Les deux derniers chiffres de l'année
-  const currentMonth = new Date().getMonth() + 1; // Mois actuel (1-indexé)
+  const currentYear = new Date().getFullYear() % 100;
+  const currentMonth = new Date().getMonth() + 1;
 
   const isExpiryValid = month && year && 
                         parseInt(month) >= 1 && parseInt(month) <= 12 &&
-                        parseInt(year) >= currentYear && // Année doit être au moins l'année actuelle
-                        (parseInt(year) > currentYear || parseInt(month) >= currentMonth); // Si même année, mois doit être au moins le mois actuel
+                        parseInt(year) >= currentYear &&
+                        (parseInt(year) > currentYear || parseInt(month) >= currentMonth);
 
   return cardNameInput.value.trim() !== '' &&
          cardNumberInput.value.replace(/\s/g, '').length === 16 &&
@@ -220,18 +244,17 @@ const isAddCardFormValid = computed(() => {
          cvcInput.value.length >= 3 && cvcInput.value.length <= 4;
 });
 
-
 // --- Fonctions du formulaire d'ajout de carte ---
 const openAddCardForm = () => {
   isAddCardFormVisible.value = true;
-  clearAddCardForm(); // Réinitialise le formulaire quand on l'ouvre
-  showAddCardSuccess.value = ''; // Cache les messages précédents
+  clearAddCardForm();
+  showAddCardSuccess.value = '';
   showAddCardError.value = '';
 };
 
 const closeAddCardForm = () => {
   isAddCardFormVisible.value = false;
-  clearAddCardForm(); // Réinitialise le formulaire quand on le ferme
+  clearAddCardForm();
   showAddCardSuccess.value = '';
   showAddCardError.value = '';
 };
@@ -266,15 +289,15 @@ const handleAddCard = async () => {
       last4: last4Digits,
       expiryMonth: parseInt(expMonth),
       expiryYear: parseInt(expYear),
-      savedAt: serverTimestamp() // Ajoute un timestamp
+      savedAt: serverTimestamp()
     };
 
     const savedCardsCollectionRef = collection(db, 'users', authStore.user.uid, 'savedCards');
     await addDoc(savedCardsCollectionRef, savedCardData);
     
     showAddCardSuccess.value = "Carte ajoutée avec succès (démo) !";
-    clearAddCardForm(); // Efface le formulaire après succès
-    isAddCardFormVisible.value = false; // Cache le formulaire
+    clearAddCardForm();
+    isAddCardFormVisible.value = false;
 
   } catch (error) {
     console.error("Erreur lors de l'ajout de la carte (démo) :", error);
@@ -284,15 +307,15 @@ const handleAddCard = async () => {
 
 // --- Watchers pour le formatage des entrées du nouveau formulaire ---
 watch(() => expiryInput.value, (newValue) => {
-  let cleaned = newValue.replace(/\D/g, ''); // Supprime les non-chiffres
+  let cleaned = newValue.replace(/\D/g, '');
   if (cleaned.length > 2) {
     cleaned = cleaned.substring(0, 2) + '/' + cleaned.substring(2, 4);
   }
-  expiryInput.value = cleaned.slice(0, 5); // Limite à MM/AA
+  expiryInput.value = cleaned.slice(0, 5);
 });
 
 watch(() => cardNumberInput.value, (newValue) => {
-  let cleaned = newValue.replace(/\s/g, ''); // Supprime les espaces existants
+  let cleaned = newValue.replace(/\s/g, '');
   let formatted = '';
   for (let i = 0; i < cleaned.length; i++) {
     if (i > 0 && i % 4 === 0) {
@@ -300,7 +323,7 @@ watch(() => cardNumberInput.value, (newValue) => {
     }
     formatted += cleaned[i];
   }
-  cardNumberInput.value = formatted.slice(0, 19); // Max 19 caractères avec espaces
+  cardNumberInput.value = formatted.slice(0, 19);
 });
 
 
@@ -317,6 +340,13 @@ watchEffect(() => {
     };
   }
 });
+
+// --- Gestion des onglets via l'URL ---
+watch(() => route.query.tab, (newTab) => {
+  if (newTab) {
+    currentTab.value = newTab;
+  }
+}, { immediate: true });
 
 // --- Gère la mise à jour du profil ---
 async function handleUpdateProfile() {
@@ -401,9 +431,93 @@ const removeSavedCard = async (cardId) => {
   }
 };
 
+// --- Fonction pour charger les pays via REST Countries API ---
+const loadCountries = async () => {
+  try {
+    // REST Countries API pour tous les pays
+    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    countries.value = data
+      .map(country => ({
+        code: country.cca2,
+        name: country.name.common // Utilise le nom commun du pays
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+  } catch (error) {
+    console.error("Erreur lors du chargement des pays via REST Countries API :", error);
+    errorMessage.value = "Impossible de charger la liste des pays.";
+  }
+};
+
+// --- OpenStreetMap Nominatim Autocomplete ---
+
+const addressSearch = async () => {
+  addressSuggestions.value = [];
+  if (searchQuery.value.length < 3) { // Minimum 3 caractères pour la recherche
+    return;
+  }
+
+  try {
+    // API Nominatim d'OpenStreetMap
+    // 'q' pour la requête de recherche, 'format=json' pour le format de réponse
+    // 'limit=5' pour limiter le nombre de suggestions, 'addressdetails=1' pour plus de détails
+    // 'countrycodes=fr' pour restreindre à la France (ajuster si besoin)
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery.value)}&format=json&limit=5&addressdetails=1&countrycodes=fr`;
+    const response = await fetch(url, {
+      headers: {
+        // Il est recommandé de fournir un User-Agent pour Nominatim
+        // C'est souvent l'URL de votre application ou votre email
+        'User-Agent': 'MonApplicationDeCompte/1.0 (votre_email@example.com)'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+    const data = await response.json();
+    addressSuggestions.value = data;
+  } catch (error) {
+    console.error("Erreur lors de la recherche d'adresse via Nominatim :", error);
+    errorMessage.value = "Erreur lors de la recherche d'adresse.";
+  }
+};
+
+// Fonction de debounce pour la recherche d'adresse
+const debouncedAddressSearch = () => {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    addressSearch();
+  }, 300); // Délai de 300ms
+};
+
+const selectAddressSuggestion = (suggestion) => {
+  // Remplir les champs du formulaire avec les détails de la suggestion
+  form.value.billingAddress.street = suggestion.address.road || '';
+  if (suggestion.address.house_number) {
+    form.value.billingAddress.street = `${suggestion.address.house_number} ${form.value.billingAddress.street}`;
+  }
+  form.value.billingAddress.city = suggestion.address.city || suggestion.address.town || suggestion.address.village || '';
+  form.value.billingAddress.postalCode = suggestion.address.postcode || '';
+
+  // Trouver le nom du pays dans notre liste 'countries' à partir du code court Nominatim (country_code)
+  const matchedCountry = countries.value.find(c => c.code.toLowerCase() === suggestion.address.country_code);
+  if (matchedCountry) {
+    form.value.billingAddress.country = matchedCountry.name;
+  } else {
+    form.value.billingAddress.country = suggestion.address.country || ''; // Fallback si non trouvé
+  }
+
+  searchQuery.value = suggestion.display_name; // Affiche l'adresse complète dans le champ de recherche
+  addressSuggestions.value = []; // Cache les suggestions après sélection
+};
+
+
 // --- Navigation ---
-function goBack() { 
-  router.back(); 
+function goBack() {
+  router.push('/');
 }
 
 // --- Hooks de cycle de vie ---
@@ -411,7 +525,10 @@ onMounted(() => {
   if (authStore.isLoggedIn) {
     loadSavedCards();
   }
+  loadCountries(); // Charge les pays au montage du composant
 
+  // Pas de script Google Maps à initialiser ici avec Nominatim
+  
   watchEffect(() => {
     if (authStore.isLoggedIn) {
       loadSavedCards();
@@ -429,29 +546,36 @@ onUnmounted(() => {
   if (unsubscribeSavedCards) {
     unsubscribeSavedCards();
   }
+  clearTimeout(searchTimeout); // Nettoie le timeout de recherche
 });
 </script>
 
 <style scoped>
 .settings-page-wrapper {
-  background-color: var(--background-one, #01070A);
+  background-color: var(--background-one);
   min-height: 100vh;
-  color: var(--text-one, #76C6E3);
+  color: var(--text-one);
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
 .card {
-  background-color: var(--background-two, #0E181C);
-  border: 1px solid var(--border-separator-one, #024457);
+  background-color: var(--background-two);
+  border: 1px solid var(--border-separator-one);
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-  color: var(--text-one, #76C6E3);
+  color: var(--text-one);
+}
+
+p{
+  color: var(--text-one) !important;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .card-header {
-  background-color: var(--interactive-comp-one, #0E181C);
-  color: var(--text-high-contrast, #FFFFFF);
-  border-bottom: 1px solid var(--border-separator-one, #024457);
+  background-color: var(--interactive-comp-one);
+  color: var(--text-high-contrast);
+  border-bottom: 1px solid var(--border-separator-one);
   border-radius: 15px 15px 0 0;
   padding: 1.5rem;
   text-align: center;
@@ -459,7 +583,7 @@ onUnmounted(() => {
 
 /* Styles pour les onglets de navigation */
 .nav-tabs {
-  border-bottom: none; /* Supprime la bordure inférieure par défaut de Bootstrap */
+  border-bottom: none;
 }
 
 .nav-tabs .nav-item {
@@ -467,13 +591,13 @@ onUnmounted(() => {
 }
 
 .nav-tabs .nav-link {
-  color: var(--text-one); /* Couleur par défaut des liens */
+  color: var(--text-one);
   border: none;
   border-radius: 0;
   padding: 0.75rem 1.25rem;
   transition: all 0.3s ease;
   background-color: transparent;
-  position: relative; /* Pour l'indicateur d'onglet actif */
+  position: relative;
 }
 
 .nav-tabs .nav-link:hover {
@@ -484,9 +608,9 @@ onUnmounted(() => {
 
 .nav-tabs .nav-link.active {
   color: var(--text-high-contrast);
-  background-color: var(--background-two); /* Correspond au fond du corps de la carte */
+  background-color: var(--background-two);
   border-color: var(--border-separator-one);
-  border-bottom-color: var(--background-two); /* Cache la bordure inférieure quand l'onglet est actif */
+  border-bottom-color: var(--background-two);
   font-weight: 600;
 }
 
@@ -494,11 +618,11 @@ onUnmounted(() => {
 .nav-tabs .nav-link.active::after {
   content: '';
   position: absolute;
-  bottom: -1px; /* Chevauche la bordure du corps de la carte */
+  bottom: -1px;
   left: 0;
   width: 100%;
-  height: 3px; /* Épaisseur du surlignement */
-  background-color: var(--solid-one); /* Couleur du surlignement */
+  height: 3px;
+  background-color: var(--solid-one);
   border-radius: 2px;
 }
 
@@ -508,36 +632,36 @@ onUnmounted(() => {
 }
 
 h1, h3, h4 {
-  color: var(--text-high-contrast, #FFFFFF);
+  color: var(--text-high-contrast);
   font-weight: 600;
 }
 
 .form-label {
-  color: var(--text-one, #76C6E3);
+  color: var(--text-one);
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
 
-.form-control, .form-select { /* Appliqué aussi à select */
-  background-color: var(--interactive-comp-one, #0E181C);
-  border: 1px solid var(--border-separator-one, #024457);
-  color: var(--text-high-contrast, #FFFFFF);
+.form-control, .form-select {
+  background-color: var(--interactive-comp-one);
+  border: 1px solid var(--border-separator-one);
+  color: var(--text-high-contrast);
   border-radius: 8px;
   padding: 0.75rem 1rem;
 }
 .form-control:focus, .form-select:focus {
-  background-color: var(--interactive-comp-two, #003747);
-  border-color: var(--solid-one, #50A0BD);
-  box-shadow: 0 0 0 0.25rem rgba(80, 160, 189, 0.25);
+  background-color: var(--interactive-comp-two);
+  border-color: var(--solid-one);
+  box-shadow: 0 0 0 0.25rem rgba(80, 160, 189, 0.25); /* Garder le shadow pour la visibilité du focus */
 }
 
 .form-control:disabled {
-  background-color: var(--background-two, #0E181C);
+  background-color: var(--background-two);
   opacity: 0.7;
 }
 
 .form-text {
-  color: var(--text-one, #76C6E3);
+  color: var(--text-one);
   opacity: 0.8;
   font-size: 0.875em;
 }
@@ -545,7 +669,7 @@ h1, h3, h4 {
 hr {
     border: none;
     height: 1px;
-    background-color: var(--border-separator-two, #1D667D);
+    background-color: var(--border-separator-two);
     opacity: 0.5;
 }
 
@@ -558,19 +682,19 @@ hr {
 }
 
 .btn-primary {
-    background-color: var(--solid-one, #50A0BD);
-    color: black;
+    background-color: var(--solid-one);
+    color: var(--text-high-contrast); /* Ajusté pour le contraste avec solid-one */
 }
 .btn-primary:hover {
-    background-color: var(--solid-two, #4394B0);
+    background-color: var(--solid-two);
 }
 
 .btn-secondary {
-    background-color: var(--interactive-comp-three, #024457);
-    color: var(--text-high-contrast, #FFFFFF);
+    background-color: var(--interactive-comp-three);
+    color: var(--text-high-contrast);
 }
 .btn-secondary:hover {
-    background-color: var(--interactive-comp-two, #003747);
+    background-color: var(--interactive-comp-two);
 }
 
 .alert {
@@ -581,12 +705,12 @@ hr {
 }
 
 .alert-danger {
-    background-color: rgba(220, 53, 69, 0.15);
-    color: var(--text-high-contrast);
-    border-color: rgba(220, 53, 69, 0.3);
+    background-color: var(--background-one); /* Utilisation d'une couleur plus claire pour le fond de l'alerte danger */
+    color: #dc3545; /* Laisser un rouge vif pour le texte danger */
+    border-color: #dc3545;
 }
 .alert-danger h4 {
-    color: var(--text-high-contrast);
+    color: #dc3545;
 }
 
 .btn-danger {
@@ -599,15 +723,21 @@ hr {
 }
 
 .alert-success {
-    background-color: rgba(25, 135, 84, 0.15);
-    color: #d1e7dd;
-    border-color: rgba(25, 135, 84, 0.3);
+    background-color: var(--background-one); /* Similaire aux alertes Bootstrap */
+    color: #198754;
+    border-color: #198754;
 }
 
 .alert-warning {
-    background-color: rgba(255, 193, 7, 0.15);
-    color: #fff3cd;
-    border-color: rgba(255, 193, 7, 0.3);
+    background-color: var(--background-one); /* Similaire aux alertes Bootstrap */
+    color: #ffc107;
+    border-color: #ffc107;
+}
+
+.alert-info {
+    background-color: var(--background-one); /* Similaire aux alertes Bootstrap */
+    color: #0dcaf0;
+    border-color: #0dcaf0;
 }
 
 .card-list {
@@ -640,5 +770,35 @@ hr {
   border: 1px solid var(--border-separator-one);
   border-radius: 15px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.list-group {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--border-separator-one);
+    border-radius: 8px;
+    background-color: var(--background-two);
+    z-index: 1000;
+    position: absolute;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.list-group-item {
+    background-color: var(--background-two);
+    color: var(--text-one);
+    border: none;
+    border-bottom: 1px solid var(--border-separator-three);
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.list-group-item:hover, .list-group-item:focus {
+    background-color: var(--interactive-comp-two);
+    color: var(--text-high-contrast);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
 }
 </style>
