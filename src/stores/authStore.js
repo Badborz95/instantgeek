@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'; // Ajout de onSnapshot
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { useWishlistStore } from './wishlistStore';
 import { useCartStore } from './cartStore';
