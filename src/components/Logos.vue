@@ -1,13 +1,21 @@
 <template>
   <div class="container-fluid py-2 logos">
-    <a href="/recherche?platform=Playstation"><img src="/assets/img/logos/playstation_icon.png" alt="Playstation"/></a>
-    <a href="/recherche?platform=Xbox"><img src="/assets/img/logos/xbox_game_console_play_icon.png" alt="Xbox"/></a>
-    <a href="/recherche?platform=Switch"><img src="/assets/img/logos/switch_icon.png" alt="Switch"/></a>
-    <a href="/recherche?platform=Steam"><img src="/assets/img/logos/square_steam_icon.png" alt="Steam"/></a>
-    <a href="/recherche?platform=Epic%20Games"><img src="/assets/img/logos/epic_games_icon.png" alt="Epic Games"/></a>
+    <router-link :to="{ path: '/recherche', query: { platform: 'Playstation' } }">
+      <img src="/assets/img/logos/playstation_icon.png" alt="Playstation"/>
+    </router-link>
+    <router-link :to="{ path: '/recherche', query: { platform: 'Xbox' } }">
+      <img src="/assets/img/logos/xbox_game_console_play_icon.png" alt="Xbox"/>
+    </router-link>
+    <router-link :to="{ path: '/recherche', query: { platform: 'Switch' } }">
+      <img src="/assets/img/logos/switch_icon.png" alt="Switch"/>
+    </router-link>
+    <router-link :to="{ path: '/recherche', query: { platform: 'Steam' } }">
+      <img src="/assets/img/logos/square_steam_icon.png" alt="Steam"/>
+    </router-link>
+    <router-link :to="{ path: '/recherche', query: { platform: 'Epic Games' } }">
+      <img src="/assets/img/logos/epic_games_icon.png" alt="Epic Games"/>
+    </router-link>
   </div>
-  
-
 </template>
 
 <script setup>
