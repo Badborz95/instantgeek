@@ -84,6 +84,9 @@
                   <div class="mb-3 text-start">
                     <label for="street" class="form-label">Adresse (rue, etc.)</label>
                     <input type="text" id="street" class="form-control" placeholder="123 rue de la République" v-model="form.billingAddress.street">
+                    <div v-if="currentTab === 'address' && !form.billingAddress.street && authStore.isLoggedIn" class="form-text text-danger">
+                      Veuillez saisir le nom de la rue pour que l'adresse soit complète.
+                    </div>
                   </div>
 
                   <div class="row">
@@ -494,24 +497,69 @@ const debouncedAddressSearch = () => {
 };
 
 const selectAddressSuggestion = (suggestion) => {
-  // Remplir les champs du formulaire avec les détails de la suggestion
-  form.value.billingAddress.street = suggestion.address.road || '';
-  if (suggestion.address.house_number) {
-    form.value.billingAddress.street = `${suggestion.address.house_number} ${form.value.billingAddress.street}`;
-  }
-  form.value.billingAddress.city = suggestion.address.city || suggestion.address.town || suggestion.address.village || '';
-  form.value.billingAddress.postalCode = suggestion.address.postcode || '';
+  // Réinitialiser les champs d'adresse pour éviter les restes d'anciennes sélections
+  form.value.billingAddress.street = '';
+  form.value.billingAddress.city = '';
+  form.value.billingAddress.postalCode = '';
+  form.value.billingAddress.country = '';
 
-  // Trouver le nom du pays dans notre liste 'countries' à partir du code court Nominatim (country_code)
-  const matchedCountry = countries.value.find(c => c.code.toLowerCase() === suggestion.address.country_code);
+  const address = suggestion.address;
+
+  // Logique améliorée pour le champ 'street'
+  let streetPart = '';
+  if (address.house_number && address.road) {
+      streetPart = `${address.house_number} ${address.road}`;
+  } else if (address.road) {
+      streetPart = address.road;
+  } else if (address.pedestrian) {
+      streetPart = address.pedestrian;
+  } else if (address.footway) {
+      streetPart = address.footway;
+  } else if (address.path) {
+      streetPart = address.path;
+  } else if (address.street) {
+      streetPart = address.street;
+  }
+
+  if (!streetPart && suggestion.namedetails && suggestion.namedetails.name) {
+      streetPart = suggestion.namedetails.name;
+  }
+  if (!streetPart && suggestion.display_name) {
+      const parts = suggestion.display_name.split(',');
+      if (parts.length > 0) {
+          streetPart = parts[0].trim();
+      }
+  }
+  form.value.billingAddress.street = streetPart;
+
+  // Logique améliorée pour le champ 'city'
+  form.value.billingAddress.city = address.city || address.town || address.village || address.hamlet || address.county || '';
+
+  // Logique améliorée pour le champ 'postalCode'
+  form.value.billingAddress.postalCode = address.postcode || '';
+
+  // Fallback si postcode n'est pas directement dans address,
+  // ou si Nominatim inclut le code postal dans display_name sans le détailler ailleurs.
+  if (!form.value.billingAddress.postalCode && suggestion.display_name) {
+      // Expression régulière pour trouver un code postal français (5 chiffres)
+      const frPostalCodeMatch = suggestion.display_name.match(/\b(\d{5})\b/);
+      if (frPostalCodeMatch) {
+          form.value.billingAddress.postalCode = frPostalCodeMatch[1];
+      }
+      // Vous pouvez ajouter d'autres regex pour d'autres formats de codes postaux si nécessaire
+  }
+
+
+  // Logique pour le champ 'country'
+  const matchedCountry = countries.value.find(c => c.code.toLowerCase() === address.country_code);
   if (matchedCountry) {
     form.value.billingAddress.country = matchedCountry.name;
   } else {
-    form.value.billingAddress.country = suggestion.address.country || ''; // Fallback si non trouvé
+    form.value.billingAddress.country = address.country || '';
   }
 
-  searchQuery.value = suggestion.display_name; // Affiche l'adresse complète dans le champ de recherche
-  addressSuggestions.value = []; // Cache les suggestions après sélection
+  searchQuery.value = suggestion.display_name;
+  addressSuggestions.value = [];
 };
 
 
