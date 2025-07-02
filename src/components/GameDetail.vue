@@ -1,65 +1,11 @@
 <template>
   <div class="container-fluid py-2 gameDetail" v-if="game" id="main-content">
 
+    <div :key="isMobile">
+      <div v-if="isMobile">
 
-    <div v-if="isMobile">
-      <!--VERSION MOBILE-->
-      <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
-        <h1 class="title">{{ game.titre }}</h1>
-        <div class="game-info">
-          <h3 class="tags">
-            <ul class="tag-list">
-              <li v-for="(tag, index) in game.tags" :key="index" class="tag">
-                {{ tag }}
-              </li>
-            </ul>
-          </h3>
-
-          <p class="synopsis">
-            <TruncatedText :text="game.description" :maxLength="200" />
-          </p>
-        </div>
-      </div>
-      <div class="game-details">
-        <div class="infos">
-          <div class="infos1">
-            <div class="paltform">
-              <h3>{{ game.platform }}</h3>
-            </div>
-            <p>|</p>
-            <div class="stock">
-              <h3>En stock</h3>
-            </div>
-          </div>
-          <h3 class="price">{{ game.price }}</h3>
-        </div>
-        <div class="buttons">
-          <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
-          <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
-          </button>
-          <button class="cart" @click="ajouterAuPanier">
-            <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
-              Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
-              https://fontawesome.com/license/free
-              Copyright 2025 Fonticons, Inc.-->
-              <path
-                d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-            </svg>
-          </button>
-        </div>
-        <div class="description">
-          <h3>Description</h3>
-          {{ game.description }}
-        </div>
-      </div>
-    </div>
-    <div v-else>
-      <!--VERSION DESKTOP-->
-      <div class="background" :style="{ backgroundImage: `url(${game.hero})` }">
-        <div>
-          <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
-        </div>
-        <div class="desktop">
+        <!--VERSION MOBILE-->
+        <div class="background" :style="{ backgroundImage: `url(/assets/img/preview/${game.image})` }">
           <h1 class="title">{{ game.titre }}</h1>
           <div class="game-info">
             <h3 class="tags">
@@ -69,46 +15,103 @@
                 </li>
               </ul>
             </h3>
+
             <p class="synopsis">
-              <TruncatedText :text="game.description" :maxLength="450" />
+              <TruncatedText :text="game.description" :maxLength="200" />
             </p>
           </div>
-          <div class="game-details">
-            <div class="infos">
-              <div class="infos1">
-                <div class="paltform">
-                  <h3>{{ game.platform }}</h3>
-                </div>
-                <p>|</p>
-                <div class="stock">
-                  <h3>En stock</h3>
-                </div>
+        </div>
+        <div class="game-details">
+          <div class="infos">
+            <div class="infos1">
+              <div class="paltform">
+                <h3>{{ game.platform }}</h3>
               </div>
-              <h3 class="price">{{ game.price }}</h3>
+              <p>|</p>
+              <div class="stock">
+                <h3>En stock</h3>
+              </div>
             </div>
-            <div class="buttons">
-              <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
-                <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
-                <span>{{ isGameInWishlist ? 'Dans la wishlist' : 'Ajouter aux favoris' }}</span>
-              </button>
-              <button class="cart" @click="ajouterAuPanier" >
-                <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
-                  Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
-                  https://fontawesome.com/license/free
-                  Copyright 2025 Fonticons, Inc.-->
-                  <path
-                    d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
-                </svg>
-              </button>
-            </div>
-
+            <h3 class="price">{{ game.price }}</h3>
           </div>
-
+          <div class="buttons">
+            <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
+              <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
+            </button>
+            <button class="cart" @click="ajouterAuPanier">
+              <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
+                Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
+                https://fontawesome.com/license/free
+                Copyright 2025 Fonticons, Inc.-->
+                <path
+                  d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+              </svg>
+            </button>
+          </div>
+          <div class="description">
+            <h3>Description</h3>
+            {{ game.description }}
+          </div>
         </div>
       </div>
 
+      <div v-else>
+        <!--VERSION DESKTOP-->
+        <div class="background" :style="{ backgroundImage: `url(${game.hero})` }">
+          <div>
+            <img :src="`/assets/img/preview/${game.image}`" :alt="game.titre" />
+          </div>
+          <div class="desktop">
+            <h1 class="title">{{ game.titre }}</h1>
+            <div class="game-info">
+              <h3 class="tags">
+                <ul class="tag-list">
+                  <li v-for="(tag, index) in game.tags" :key="index" class="tag">
+                    {{ tag }}
+                  </li>
+                </ul>
+              </h3>
+              <p class="synopsis">
+                <TruncatedText :text="game.description" :maxLength="450" />
+              </p>
+            </div>
+            <div class="game-details">
+              <div class="infos">
+                <div class="infos1">
+                  <div class="paltform">
+                    <h3>{{ game.platform }}</h3>
+                  </div>
+                  <p>|</p>
+                  <div class="stock">
+                    <h3>En stock</h3>
+                  </div>
+                </div>
+                <h3 class="price">{{ game.price }}</h3>
+              </div>
+              <div class="buttons">
+                <button class="favorite" @click="toggleWishlist" :class="{ 'in-wishlist': isGameInWishlist }">
+                  <i class="bi" :class="isGameInWishlist ? 'bi-heart-fill' : 'bi-heart'"></i>
+                  <span>{{ isGameInWishlist ? 'Dans la wishlist' : 'Ajouter aux favoris' }}</span>
+                </button>
+                <button class="cart" @click="ajouterAuPanier">
+                  <h3>Ajouter au panier</h3> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">!Font
+                    Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License -
+                    https://fontawesome.com/license/free
+                    Copyright 2025 Fonticons, Inc.-->
+                    <path
+                      d="M0 24C0 10.7 10.7 0 24 0L69.5 0c22 0 41.5 12.8 50.6 32l411 0c26.3 0 45.5 25 38.6 50.4l-41 152.3c-8.5 31.4-37 53.3-69.5 53.3l-288.5 0 5.4 28.5c2.2 11.3 12.1 19.5 23.6 19.5L488 336c13.3 0 24 10.7 24 24s-10.7 24-24 24l-288.3 0c-34.6 0-64.3-24.6-70.7-58.5L77.4 54.5c-.7-3.8-4-6.5-7.9-6.5L24 48C10.7 48 0 37.3 0 24zM128 464a48 48 0 1 1 96 0 48 48 0 1 1 -96 0zm336-48a48 48 0 1 1 0 96 48 48 0 1 1 0-96z" />
+                  </svg>
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </div>
-    <SimilarGames :tags="game.tags" :currentGameId="game.id" />
+    <SimilarGames :tags="game.tags" :currentGameId="game.id" class="similar" />
   </div>
   <div v-else>
     <p>Chargement du jeu...</p>
@@ -117,14 +120,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue' 
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../firebase/index.js'
 import TruncatedText from './TruncatedText.vue';
 import SimilarGames from './SimilarGames.vue'
 import { useCartStore } from '../stores/cartStore'
-import { useWishlistStore } from '../stores/wishlistStore' 
+import { useWishlistStore } from '../stores/wishlistStore'
 import { useToast } from 'vue-toastification'
 
 
@@ -243,6 +246,9 @@ watch(() => route.params.id, (newId) => {
 }
 
 
+.similar {
+  margin-top: 180px;
+}
 
 .title {
   align-self: center;
@@ -377,20 +383,24 @@ watch(() => route.params.id, (newId) => {
 /* Style pour les boutons de la wishlist */
 
 .favorite {
-  width: 15%; /* Pour la version mobile */
+  width: 15%;
+  /* Pour la version mobile */
   height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* Espace entre l'icône et le texte */
+  gap: 8px;
+  /* Espace entre l'icône et le texte */
   border: 1px solid var(--border-separator-one);
   background-color: var(--interactive-comp-one);
   color: var(--text-one);
   border-radius: 2em;
-  font-size: 1.5rem; /* Taille de l'icône */
+  font-size: 1.5rem;
+  /* Taille de l'icône */
   cursor: pointer;
   transition: all 0.3s ease;
 }
+
 .favorite:hover {
   background-color: var(--interactive-comp-three);
   border-color: var(--border-separator-three);
@@ -405,6 +415,10 @@ watch(() => route.params.id, (newId) => {
 
 /*VERSION DESKTOP*/
 @media (min-width: 768px) {
+  .similar {
+    margin-top: 0;
+  }
+
   .background {
     height: 900px;
     padding: 8% 15%;
@@ -470,13 +484,19 @@ watch(() => route.params.id, (newId) => {
   .game-details {
     background-color: transparent;
   }
+
   .favorite {
-      width: auto; /* La taille s'adapte au contenu */
-      padding: 0 20px; /* Un peu d'espace horizontal */
-      font-size: 1rem; /* Taille du texte normal */
+    width: auto;
+    /* La taille s'adapte au contenu */
+    padding: 0 20px;
+    /* Un peu d'espace horizontal */
+    font-size: 1rem;
+    /* Taille du texte normal */
   }
+
   .favorite i {
-      font-size: 1.2rem; /* Taille de l'icône sur desktop */
+    font-size: 1.2rem;
+    /* Taille de l'icône sur desktop */
   }
 }
 </style>
