@@ -124,7 +124,7 @@ onMounted(async () => {
   fetchGameDetails(wishlistStore.gameIds);
 });
 
-// Surveiller les changements dans la wishlist (exemple: suppression d'un item)
+// Surveiller les changements dans la wishlist (exemple: suppression d'un item etc)
 // pour mettre à jour la liste affichée en temps réel.
 watch(() => wishlistStore.gameIds, (newIds) => {
   fetchGameDetails(newIds);
@@ -132,7 +132,6 @@ watch(() => wishlistStore.gameIds, (newIds) => {
 </script>
 
 <style scoped>
-/* Applique les variables CSS pour la page */
 main {
   background-color: var(--background-one);
   color: var(--text-one);
