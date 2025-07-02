@@ -256,8 +256,6 @@ onMounted(() => {
 watch(searchQuery, (newValue) => {
   if (newValue.trim() !== '') {
     executeSearch();
-  } else if (route.path === '/recherche') {
-    router.push('/');
   }
 });
 

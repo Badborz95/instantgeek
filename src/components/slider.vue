@@ -46,7 +46,7 @@
             <p>{{ gameInfo[currentIndex].description }}</p>
             <p>{{ gameInfo[currentIndex].price }}</p>
             <a href="#" class="btn btn-page me-2">Acheter</a>
-            <a :href="gameLink[currentIndex].src" target="_blank" class="btn btn-page me-2">Page du jeu</a>
+            <router-link :to="`/game/${gameInfo[currentIndex].id}`" class="btn btn-page me-2">Page du jeu</router-link>
             <a class="btn btn-danger" @click="toggleWishlist">
               <img
                 :src="isCurrentGameInWishlist ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
@@ -76,7 +76,7 @@ const imagesPrevu = ref([
 
 // Liens des jeux
 const gameLink = ref([
-  { src: 'https://www.instant-gaming.com/fr/2462-acheter-grand-theft-auto-vi-pc-jeu-rockstar/', alt: 'Page GTA VI' },
+  { src: '/game/tEZ8WKToNXRdUw30WBpN', alt: 'Page GTA VI' },
   { src: 'https://www.instant-gaming.com/fr/14352-acheter-metaphor-refantazio-pc-jeu-steam-europe/', alt: 'Page Metaphor' },
   { src: 'https://www.instant-gaming.com/fr/18294-acheter-elden-ring-nightreign-pc-jeu-steam-europe/', alt: 'Page Elden Ring Nightrein' },
   { src: 'https://www.instant-gaming.com/fr/6215-acheter-the-last-of-us-part-ii-remastered-pc-jeu-steam-europe/', alt: 'Page The Last of Us 2' },
