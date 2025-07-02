@@ -78,42 +78,8 @@
 
           <hr class="my-4">
 
-          <div class="payment-section">
-            <h4 class="payment-title">Informations de paiement</h4>
-            <form class="credit-card-form">
-              <div class="mb-3">
-                <label for="card-name" class="form-label">Nom sur la carte</label>
-                <input type="text" id="card-name" class="form-control" v-model="cardDetails.name" required>
-              </div>
-              <div class="mb-3">
-                <label for="card-number" class="form-label">Numéro de carte</label>
-                <input type="text" id="card-number" class="form-control" placeholder="0000 0000 0000 0000" v-model="cardDetails.number" maxlength="19" required>
-              </div>
-              <div class="row">
-                <div class="col-7">
-                  <label for="card-expiry" class="form-label">Expiration</label>
-                  <div class="d-flex">
-                    <select id="card-expiry-month" class="form-select me-2" v-model="cardDetails.expiryMonth" required>
-                      <option disabled value="">Mois</option>
-                      <option v-for="n in 12" :key="n" :value="n">{{ n.toString().padStart(2, '0') }}</option>
-                    </select>
-                    <select id="card-expiry-year" class="form-select" v-model="cardDetails.expiryYear" required>
-                      <option disabled value="">Année</option>
-                      <option v-for="n in 10" :key="n" :value="currentYear + n - 1">{{ currentYear + n - 1 }}</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="col-5">
-                  <label for="card-cvc" class="form-label">CVC</label>
-                  <input type="text" id="card-cvc" class="form-control" placeholder="123" v-model="cardDetails.cvc" maxlength="4" required>
-                </div>
-              </div>
-            </form>
-          </div>
-
-
-          <button @click="proceedToValidation" class="btn-validate mt-4" :disabled="!canProceedToPayment">
-            PAYER {{ cartStore.totalPrice }} €
+          <button @click="proceedToPaymentPage" class="btn-validate mt-4" :disabled="!canProceedToPayment">
+            PROCÉDER AU PAIEMENT
           </button>
           <router-link to="/" class="btn btn-continue-shopping mt-3">
             Continuer mes achats
@@ -125,79 +91,32 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import Navbar from '../components/Navbar.vue';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import { useRouter } from 'vue-router';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../firebase';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore(); 
 const router = useRouter();
 
-// Vérifie si l'utilisateur peut procéder au paiement
 const canProceedToPayment = computed(() => {
   return cartStore.items.length > 0 && 
          authStore.isLoggedIn && 
-         authStore.hasCompleteBillingAddress &&
-         isCardFormValid.value;
+         authStore.hasCompleteBillingAddress;
 });
 
-const currentYear = new Date().getFullYear();
-const cardDetails = ref({
-  name: '',
-  number: '',
-  expiryMonth: '',
-  expiryYear: '',
-  cvc: ''
-});
-
-const isCardFormValid = computed(() => {
-  return cardDetails.value.name.trim() !== '' &&
-         cardDetails.value.number.length >= 16 &&
-         cardDetails.value.expiryMonth !== '' &&
-         cardDetails.value.expiryYear !== '' &&
-         cardDetails.value.cvc.length >= 3;
-});
-
-async function proceedToValidation() {
+function proceedToPaymentPage() {
     if (!canProceedToPayment.value) {
         alert("Veuillez vous connecter et renseigner une adresse de facturation complète pour continuer.");
         return;
     }
-
-    try {
-        const orderData = {
-            userId: authStore.user.uid,
-            createdAt: serverTimestamp(),
-            items: JSON.parse(JSON.stringify(cartStore.items)),
-            totalPrice: cartStore.totalPrice,
-            billingAddress: JSON.parse(JSON.stringify(authStore.billingAddress)),
-            status: 'validée'
-        };
-
-        console.log("Objet orderData envoyé à Firestore :", orderData);
-        console.log('État de authStore.user au moment du clic :', authStore.user);
-        console.log('État de authStore.billingAddress :', authStore.billingAddress);
-
-        const ordersCollectionRef = collection(db, 'orders');
-        const newOrderRef = await addDoc(ordersCollectionRef, orderData);
-
-        cartStore.clearCart();
-
-        router.push({ name: 'validation', params: { orderId: newOrderRef.id } });
-
-    } catch (error) {
-        console.error("Erreur lors de la création de la commande : ", error);
-        alert("Une erreur est survenue lors du paiement. Veuillez réessayer.");
-    }
+    router.push('/paiement');
 }
 </script>
 
 <style scoped>
-/* Vos styles existants sont conservés, on ajoute juste ceux pour les nouveaux blocs */
 .address-section, .payment-section {
   text-align: left;
 }
@@ -268,16 +187,13 @@ async function proceedToValidation() {
     margin-right: 0.5rem;
 }
 
-/* Le reste de vos styles .panier-container, etc., est inchangé */
-/* Le conteneur principal hérite de la couleur de fond via la balise <main> ou <body> */
-/* et de la couleur de texte par défaut. */
 .panier-container {
   color: var(--text-one);
 }
 
 /* --- Liste des articles --- */
 .cart-items-list {
-  background-color: var(--background-two); /* Fond légèrement différent du fond de page */
+  background-color: var(--background-two);
   border-radius: 15px;
   padding: 1.5rem;
   max-height: 550px;
@@ -289,7 +205,7 @@ async function proceedToValidation() {
 .cart-item {
   display: flex;
   align-items: center;
-  background-color: var(--interactive-comp-one); /* Un fond de carte interactif */
+  background-color: var(--interactive-comp-one);
   border-radius: 10px;
   padding: 1rem;
   margin-bottom: 1rem;
@@ -316,7 +232,7 @@ async function proceedToValidation() {
   font-weight: bold;
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
-  color: var(--text-two); /* Texte plus contrasté pour les titres */
+  color: var(--text-two);
 }
 
 .item-price-unit {
@@ -346,7 +262,7 @@ async function proceedToValidation() {
 }
 
 .btn-quantity:hover {
-  color: var(--solid-one); /* Couleur d'accentuation au survol */
+  color: var(--solid-one);
 }
 
 .quantity-display {
@@ -375,7 +291,6 @@ async function proceedToValidation() {
   flex-shrink: 0;
 }
 
-/* NOTE : Il est recommandé de créer une variable --danger-color pour cette couleur */
 .btn-delete:hover {
   color: #ff6b6b; 
 }
@@ -419,7 +334,7 @@ async function proceedToValidation() {
 
 .btn-validate {
   background-color: var(--solid-one);
-  color: var(--background-one); /* Texte contrasté avec le fond du bouton */
+  color: var(--background-one);
   font-weight: bold;
   border: none;
   border-radius: 10px;
@@ -453,8 +368,8 @@ async function proceedToValidation() {
   width: 100%;
   transition: background-color 0.3s, color 0.3s;
   font-weight: bold;
-  text-decoration: none; /* Pour le router-link */
-  display: inline-block; /* Pour que le padding/width s'applique bien */
+  text-decoration: none;
+  display: inline-block;
 }
 
 .btn-continue-shopping:hover {

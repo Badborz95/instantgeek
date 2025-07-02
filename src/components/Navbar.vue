@@ -238,7 +238,7 @@ const toggleProfileDropdown = () => {
   if (isSearchActiveMobile.value) closeSearchInputMobile();
 };
 
-// --- LIFECYCLE & WATCHERS ---
+// --- LIFECYCLE et WATCHERS ---
 let unsubscribeWishlist = null;
 
 onMounted(() => {
@@ -280,13 +280,13 @@ watch(() => route.fullPath, (newPath, oldPath) => {
     if (isSearchActiveMobile.value) closeSearchInputMobile();
   }
 }, { flush: 'post' });
-
-const isOnCartProcessPage = computed(() => ['/panier', '/paiement', '/validation'].includes(route.path));
+// Verification des noms de page afficher
+const isOnCartProcessPage = computed(() => ['panier', 'paiement', 'validation'].includes(route.name));
 const currentStep = computed(() => {
-  switch (route.path) {
-    case '/panier': return 1;
-    case '/paiement': return 2;
-    case '/validation': return 3;
+  switch (route.name) {
+    case 'panier': return 1;
+    case 'paiement': return 2;
+    case 'validation': return 3;
     default: return 0;
   }
 });

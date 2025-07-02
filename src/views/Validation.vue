@@ -101,7 +101,7 @@ onMounted(async () => {
 <style scoped>
 .validation-page-wrapper {
   background-color: var(--background-one);
-  min-height: calc(100vh - 72px); /* 72px est une hauteur de navbar commune */
+  min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
 }

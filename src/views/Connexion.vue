@@ -78,10 +78,8 @@ import '../style.css';
 const email = ref('');
 const password = ref('');
 const router = useRouter();
-// AJOUT : Déclaration de la variable pour les messages d'erreur
 const errorMessage = ref('');
 
-// CORRIGÉ : Utilise la nouvelle gestion d'erreur
 async function handleLogin() {
   errorMessage.value = '';
   try {
@@ -93,7 +91,6 @@ async function handleLogin() {
   }
 }
 
-// CORRIGÉ : Utilise la nouvelle gestion d'erreur
 async function handleGoogleSignIn() {
   errorMessage.value = '';
   try {
@@ -105,7 +102,6 @@ async function handleGoogleSignIn() {
   }
 }
 
-// CORRIGÉ : La fonction est maintenant fonctionnelle car `errorMessage` est déclaré
 async function handleFacebookSignIn() {
   errorMessage.value = '';
   try {
@@ -117,7 +113,6 @@ async function handleFacebookSignIn() {
   }
 }
 
-// Fonction pour Discord (non modifiée, mais incluse pour l'exhaustivité)
 function redirectToDiscord() {
     const clientId = "VOTRE_CLIENT_ID_DISCORD";
     const redirectUri = encodeURIComponent(window.location.origin + "/callback/discord"); 
@@ -126,7 +121,6 @@ function redirectToDiscord() {
     window.location.href = discordAuthUrl;
 }
 
-// Fonction de réinitialisation du mot de passe (non modifiée)
 async function handlePasswordReset() {
   if (!email.value) {
     alert('Veuillez entrer votre adresse email dans le champ "Email" pour réinitialiser votre mot de passe.');
@@ -142,27 +136,24 @@ async function handlePasswordReset() {
 </script>
 
 <style scoped>
-/* Global Wrapper for the Login Page */
 .login-page-wrapper {
-  background-color: var(--background-one); /* Dark background color */
+  background-color: var(--background-one);
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
 }
 
-/* Container for the Card (Form + Image) */
 .login-card-container {
   width: 90%;
   max-width: 1300px;
-  height: 780px; /* Hauteur actuelle */
+  height: 780px;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   display: flex;
 }
 
-/* Left Section: Login Form Styles */
 .login-form-section {
   background-color: var(--interactive-comp-one);
   flex: 0 0 40%;
@@ -183,7 +174,6 @@ async function handlePasswordReset() {
   letter-spacing: 2px;
 }
 
-/* Form Group and Labels */
 .form-group {
   width: 100%;
 }
@@ -195,7 +185,6 @@ async function handlePasswordReset() {
   color: var(--text-high-contrast);
 }
 
-/* Input Fields */
 .login-input {
   background-color: var(--interactive-comp-two);
   border: 1px solid var(--border-separator-one);
@@ -216,7 +205,6 @@ async function handlePasswordReset() {
   color: #fff;
 }
 
-/* Main Button */
 .login-btn {
   background-color: var(--interactive-comp-three);
   border: none;
@@ -235,7 +223,6 @@ async function handlePasswordReset() {
   color: var(--text-high-contrast);
 }
 
-/* Small links (e.g., S'inscrire, Mot de passe oublié, Retour) */
 .small-links {
   font-size: 0.85rem;
   font-weight: 500;
@@ -252,7 +239,6 @@ async function handlePasswordReset() {
   color: var(--text-one) !important;
 }
 
-/* Social Login Separator (Not present in this template, but keeping styles for consistency) */
 .social-login-separator {
   font-size: 0.9rem;
   font-weight: 500;
@@ -261,7 +247,6 @@ async function handlePasswordReset() {
   width: 100%;
 }
 
-/* Social Icons (Not present in this template, but keeping styles for consistency) */
 .social-icons {
   margin-top: 1rem;
   margin-bottom: 1.5rem;
@@ -293,19 +278,17 @@ async function handlePasswordReset() {
 .discord-btn i { color: #7289DA; }
 .facebook-btn i { color: #3b5998; }
 
-/* Right Section: Image */
 .login-image-section {
-  background-color: #F8F8F8; /* Couleur de fond de secours */
+  background-color: #F8F8F8;
   flex: 0 0 60%;
   border-radius: 0 15px 15px 0;
   overflow: hidden;
-  position: relative; /* AJOUTÉ: Nécessaire pour le positionnement absolu du bouton de fermeture */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Style for the actual background image */
 .login-background-image {
   width: 100%;
   height: 100%;
@@ -314,19 +297,18 @@ async function handlePasswordReset() {
   display: block;
 }
 
-/* Style for the Close Button */
 .close-button {
   position: absolute;
-  top: 15px; /* Distance du haut */
-  right: 15px; /* Distance de la droite */
-  color: #fff; /* Couleur de la croix */
-  font-size: 1.8rem; /* Taille de l'icône */
-  text-decoration: none; /* Pas de soulignement */
-  z-index: 10; /* S'assure qu'elle est au-dessus de l'image */
-  background-color: rgba(0, 0, 0, 0.4); /* Fond semi-transparent pour la visibilité */
-  border-radius: 50%; /* Bouton rond */
-  width: 40px; /* Largeur du bouton */
-  height: 40px; /* Hauteur du bouton */
+  top: 15px;
+  right: 15px;
+  color: #fff;
+  font-size: 1.8rem;
+  text-decoration: none;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -334,11 +316,10 @@ async function handlePasswordReset() {
 }
 
 .close-button:hover {
-  background-color: rgba(0, 0, 0, 0.6); /* Fond plus sombre au survol */
-  color: #50A0BD; /* Couleur d'accent au survol */
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #50A0BD;
 }
 
-/* Media Queries for Responsiveness */
 @media (max-width: 767.98px) {
   .login-card-container {
     flex-direction: column;
@@ -355,7 +336,7 @@ async function handlePasswordReset() {
   }
 
   .login-image-section {
-    display: none !important; /* Cache l'image sur mobile */
+    display: none !important;
   }
 
   .login-title {

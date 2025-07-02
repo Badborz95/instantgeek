@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, updateDoc } from 'firebase/firestore'; // updateDoc ajouté
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore'; // Ajout de onSnapshot
 import { auth, db } from '../firebase';
 import { useWishlistStore } from './wishlistStore';
-import { useCartStore } from './cartStore'; // Ajouté pour l'init
+import { useCartStore } from './cartStore';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', {
     userData: null, // Le document de profil depuis Firestore
     isLoading: true,
     _authListenerUnsubscribe: null,
+    _userDataListenerUnsubscribe: null, // Nouveau pour le listener userData
   }),
 
   getters: {
@@ -30,10 +31,8 @@ export const useAuthStore = defineStore('auth', {
       }
       return 'Invité';
     },
-    // NOUVEAU : Getter pour l'adresse de facturation
     billingAddress: (state) => state.userData?.billingAddress || null,
     
-    // NOUVEAU : Getter pour vérifier si l'adresse est complète
     hasCompleteBillingAddress: (state) => {
       const addr = state.userData?.billingAddress;
       return !!(addr && addr.street && addr.city && addr.postalCode && addr.country);
@@ -41,56 +40,74 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    // MODIFIÉ : L'initialisation est plus complète
     initAuthListener() {
-      if (this._authListenerUnsubscribe) return;
+      // Nettoyage des listeners précédents si la fonction est appelée plusieurs fois
+      this.cleanupListeners(); // Appelle la fonction de nettoyage au début
 
       this._authListenerUnsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         this.isLoading = true;
         const wishlistStore = useWishlistStore();
-        const cartStore = useCartStore(); // On récupère le cartStore
+        const cartStore = useCartStore();
 
         if (firebaseUser) {
           this.user = { uid: firebaseUser.uid, email: firebaseUser.email, displayName: firebaseUser.displayName };
           
+          // Mettre en place un listener en temps réel pour userData
           const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            this.userData = userDocSnap.data();
-          } else {
-            this.userData = null; // Important si le doc n'existe pas
-          }
-          
-          // On initialise les stores qui dépendent de l'utilisateur
+          this._userDataListenerUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+              this.userData = docSnap.data();
+            } else {
+              this.userData = null;
+              console.warn("Document utilisateur Firestore non trouvé pour UID:", firebaseUser.uid);
+            }
+            this.isLoading = false; // Mettre à jour isLoading une fois les données de l'utilisateur chargées
+          }, (error) => {
+            console.error("Erreur lors du chargement du document utilisateur Firestore:", error);
+            this.userData = null;
+            this.isLoading = false;
+          });
+
+          // Initialise les stores qui dépendent de l'utilisateur
           await wishlistStore.fetchWishlist(); 
-          await cartStore.init(); // On lance l'initialisation du panier ici
+          await cartStore.init();
 
         } else {
           // Si l'utilisateur est déconnecté
           this.user = null;
           this.userData = null;
+          // Nettoie le listener userData si l'utilisateur est déconnecté
+          if (this._userDataListenerUnsubscribe) {
+            this._userDataListenerUnsubscribe();
+            this._userDataListenerUnsubscribe = null;
+          }
           wishlistStore.$reset(); 
-          await cartStore.init(); // On init aussi pour charger le panier invité
+          await cartStore.init();
+          this.isLoading = false; // Fin du chargement après déconnexion
         }
-        
-        this.isLoading = false;
       });
     },
 
-    //Action pour mettre à jour le profil
+    // Action pour mettre à jour le profil
     async updateUserProfile(dataToUpdate) {
       if (!this.user) throw new Error("Utilisateur non connecté.");
       
       const userDocRef = doc(db, 'users', this.user.uid);
       await updateDoc(userDocRef, dataToUpdate);
 
-      // Met à jour le state local pour une réactivité immédiate
-      this.userData = { ...this.userData, ...dataToUpdate };
+      // Le listener onSnapshot ci-dessus mettra automatiquement à jour this.userData
+      // Il n'est donc plus nécessaire de le faire manuellement ici
+      // this.userData = { ...this.userData, ...dataToUpdate };
     },
 
     cleanupListeners() {
       if (this._authListenerUnsubscribe) {
         this._authListenerUnsubscribe();
+        this._authListenerUnsubscribe = null;
+      }
+      if (this._userDataListenerUnsubscribe) {
+        this._userDataListenerUnsubscribe();
+        this._userDataListenerUnsubscribe = null;
       }
     }
   },
