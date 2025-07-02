@@ -45,11 +45,10 @@
             <h2>{{ gameInfo[currentIndex].name }}</h2>
             <p>{{ gameInfo[currentIndex].description }}</p>
             <p>{{ gameInfo[currentIndex].price }}</p>
-            <a href="#" class="btn btn-page me-2">Acheter</a>
+            <a href="#" class="btn btn-page me-2" @click="ajouterAuPanier">Acheter</a>
             <router-link :to="`/game/${gameInfo[currentIndex].id}`" class="btn btn-page me-2">Page du jeu</router-link>
             <a class="btn btn-danger" @click="toggleWishlist">
-              <img
-                :src="isCurrentGameInWishlist ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
+              <img :src="isCurrentGameInWishlist ? '/assets/img/favorite_black.png' : '/assets/img/favorite_empty.png'"
                 alt="Icône de favori" style="width: 24px; height: 24px;" />
             </a>
           </div>
@@ -62,8 +61,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useWishlistStore } from '../stores/wishlistStore';
+import { useCartStore } from '../stores/cartStore';
+import { useToast } from 'vue-toastification';
 
 const wishlistStore = useWishlistStore();
+const toast = useToast();
 
 //Importation des images
 const imagesPrevu = ref([
@@ -98,7 +100,7 @@ const imageHero = [
 const gameInfo = ref([
   { name: 'Grand Thief Auto VI', description: 'Comme toujours, le jeu se déroule dans un monde ouvert, dans une version fictive de Miami, en Floride, appelée Vice City, Leonida...', price: '99.99€', id: 'tEZ8WKToNXRdUw30WBpN' },
   { name: 'Metaphor: ReFantazio', description: 'Les créateurs de Persona 3, 4 et 5 ont donné naissance à Metaphor: ReFantazio...', price: '39.99€', id: 'ouRWQoFisMSRMbu5RncX' },
-{ name: 'Elden Ring Nightrein', description: "ELDEN RING NIGHTREIGN est une aventure indépendante se déroulant dans l'univers d'ELDEN RING, conçue pour offrir...", price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
+  { name: 'Elden Ring Nightrein', description: "ELDEN RING NIGHTREIGN est une aventure indépendante se déroulant dans l'univers d'ELDEN RING, conçue pour offrir...", price: '31.52€', id: 'HT3qJHVa9pXQJZSXRkQR' },
   { name: 'The Last of Us Part II REMASTERED', description: 'Cinq ans après leur périlleux voyage à travers une Amérique ravagée ...', price: '35.43€', id: 'HuvvEF5GQmSZ7ylXW1zW' },
   { name: 'Clair Obscur : Expédition 33', description: 'Une fois par an, la Peintresse se réveille. Sur son Monolithe, elle peint son nombre maudit...', price: '29.99€', id: 'ZuL3BlFzp83IyXuTQ4DF' }
 ]);
@@ -200,6 +202,25 @@ const toggleWishlist = () => {
     wishlistStore.addToWishlist(currentGame.id);
   }
 };
+
+const cartStore = useCartStore()
+
+function ajouterAuPanier() {
+  const currentGame = gameInfo.value[currentIndex.value];
+
+  if (!currentGame) return;
+
+  cartStore.addItem({
+    id: currentGame.id,
+    name: currentGame.name,
+    image: imagesPrevu.value[currentIndex.value]?.src || '',
+    price: parseFloat(currentGame.price),
+  });
+  toast.success('Jeu ajouté au panier !', {
+    timeout: 3000,
+    position: 'bottom-right'
+  })
+}
 
 </script>
 
@@ -352,9 +373,9 @@ const toggleWishlist = () => {
   padding: 15px;
 }
 
-  .btn_slider{
-    color: transparent;
-  }
+.btn_slider {
+  color: transparent;
+}
 
 
 @media (min-width: 1200px) {
