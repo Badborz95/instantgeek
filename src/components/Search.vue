@@ -143,7 +143,6 @@ function filterGames() {
     games.value = filtered;
 }
 
-// Met à jour la liste à chaque changement de searchQuery ou selectedPlatform
 watch([searchQuery, selectedPlatform, selectedGenre], filterGames);
 
 onMounted(() => {
