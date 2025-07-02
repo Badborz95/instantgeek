@@ -2,7 +2,7 @@
   <div class="login-page-wrapper vh-100 d-flex align-items-center justify-content-center">
     <div class="login-card-container d-flex shadow-lg">
       <div class="login-form-section p-4 d-flex flex-column justify-content-center align-items-center text-center">
-        <h2 class="login-title mb-4">Se connecter</h2>
+        <h1 class="login-title mb-4">Se connecter</h1>
 
         <div v-if="errorMessage" class="alert alert-danger w-100 mb-3">{{ errorMessage }}</div>
 
@@ -179,8 +179,8 @@ async function handlePasswordReset() {
 }
 
 .form-label {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 100;
   margin-bottom: 0.25rem;
   color: var(--text-high-contrast);
 }

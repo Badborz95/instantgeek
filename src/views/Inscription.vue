@@ -2,7 +2,7 @@
   <div class="login-page-wrapper vh-100 d-flex align-items-center justify-content-center">
     <div class="login-card-container d-flex shadow-lg">
       <div class="login-form-section p-4 d-flex flex-column justify-content-center align-items-center text-center">
-        <h2 class="login-title mb-4 text-white">inscription</h2>
+        <h1 class="login-title mb-4 text-white">inscription</h1>
 
         <form @submit.prevent="handleSignUp" class="w-100">
           <div class="form-group mb-3 text-start">
@@ -233,7 +233,7 @@ async function handleGoogleSignIn() {
 
 .form-label {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 100;
   margin-bottom: 0.25rem;
   color: var(--text-high-contrast) !important;
 }

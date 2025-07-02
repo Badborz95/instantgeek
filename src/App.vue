@@ -1,6 +1,7 @@
 <script setup>
 // Importation CSS centralisée dans main.js (donc pas ici)
 import './style.css';
+
 </script>
 <template>
   <div id="app-wrapper">
