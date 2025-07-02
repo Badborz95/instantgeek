@@ -27,20 +27,21 @@
 
       <div v-else class="row g-4">
         <div v-for="game in sortedGames" :key="game.id" class="col-6 col-md-4 col-lg-3">
-          <router-link class="nav-link" :to="`/game/${game.id}`">
-            <div class="card h-100 game-card">
 
+          <div class="card h-100 game-card">
+            <router-link class="nav-link" :to="`/game/${game.id}`">
               <img :src="game.hero" class="card-img-top" :alt="game.titre">
+            </router-link>
 
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title">{{ game.titre }}</h5>
-                <p class="card-text mt-auto mb-2 price">{{ game.price }} €</p>
-                <button @click="wishlistStore.removeFromWishlist(game.id)" class="btn btn-danger btn-sm">
-                  <i class="bi bi-trash-fill"></i> Retirer
-                </button>
-              </div>
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ game.titre }}</h5>
+              <p class="card-text mt-auto mb-2 price">{{ game.price }} €</p>
+              <button @click="wishlistStore.removeFromWishlist(game.id)" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash-fill"></i> Retirer
+              </button>
             </div>
-          </router-link>
+          </div>
+
         </div>
       </div>
     </div>
