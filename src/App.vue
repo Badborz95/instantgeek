@@ -19,7 +19,7 @@ import './style.css';
   min-height: 100vh;
 }
 
-/* Si tu veux que le fond s'applique à tout le body */
+/* Pour appliquer le fond */
 :global(body) {
   background-color: var(--background-one);
   color: var(--text-one);

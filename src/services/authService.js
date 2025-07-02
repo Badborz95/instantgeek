@@ -22,13 +22,25 @@ import { setDoc, doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 export async function signUp(email, password, userData) {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
-  const displayName = userData.displayName || email.split('@')[0];
+
+  const displayName = `${userData.firstname} ${userData.username}`;
   await updateProfile(user, { displayName });
+  
   await setDoc(doc(db, 'users', user.uid), {
     uid: user.uid,
     email: user.email,
+    displayName: displayName,
+    firstname: userData.firstname,
+    username: userData.username,
+    birthdate: userData.birthdate,
+    country: userData.country,
     createdAt: new Date(),
-    ...userData
+    billingAddress: {
+      street: "",
+      city: "",
+      postalCode: "",
+      country: userData.country
+    }
   });
   return user;
 }
@@ -57,6 +69,7 @@ async function _signInWithProvider(provider) {
   };
   if (!userDocSnap.exists()) {
     userData.createdAt = new Date();
+    userData.billingAddress = { street: "", city: "", postalCode: "", country: "" };
   }
   await setDoc(userDocRef, userData, { merge: true });
   return user;
@@ -79,15 +92,21 @@ export async function signInWithFacebook() {
 }
 
 /**
- * Met à jour les informations du profil d'un utilisateur.
+ * Met à jour les informations du profil d'un utilisateur dans Firestore ET dans Firebase Auth.
+ * C'EST LA FONCTION QUI MANQUAIT.
  */
 export async function updateUserProfile(uid, dataToUpdate) {
-  if (!uid) throw new Error("UID de l'utilisateur non fourni.");
+  if (!uid) throw new Error("UID de l'utilisateur non fourni pour la mise à jour.");
+  
+  // Étape 1 : Mettre à jour le document dans Firestore
   const userDocRef = doc(db, 'users', uid);
   await updateDoc(userDocRef, dataToUpdate);
+  
+  // Étape 2 : Mettre à jour le `displayName` dans Firebase Auth si il est modifié
+  // C'est important pour que le nom soit à jour partout dans Firebase
   if (dataToUpdate.displayName) {
     const user = auth.currentUser;
-    if (user) {
+    if (user && user.uid === uid) { // Sécurité supplémentaire
       await updateProfile(user, {
         displayName: dataToUpdate.displayName
       });
@@ -96,36 +115,35 @@ export async function updateUserProfile(uid, dataToUpdate) {
 }
 
 /**
- * Supprime le compte de l'utilisateur (créé avec email/mot de passe).
+ * Fonction de suppression unifiée et exportée.
+ * Gère tous les cas de suppression de compte.
+ * @param {string} [password] - Le mot de passe de l'utilisateur, requis uniquement pour la connexion par email.
  */
-export async function deleteEmailPasswordUser(password) {
+export async function deleteUserAccount(password) {
   const user = auth.currentUser;
   if (!user) throw new Error("Aucun utilisateur n'est actuellement connecté.");
-  const credential = EmailAuthProvider.credential(user.email, password);
-  await reauthenticateWithCredential(user, credential);
-  const userDocRef = doc(db, 'users', user.uid);
-  await deleteDoc(userDocRef);
-  await deleteUser(user);
-}
 
-/**
- * Supprime le compte de l'utilisateur (créé via un fournisseur OAuth).
- */
-export async function deleteOauthUser() {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Aucun utilisateur n'est actuellement connecté.");
   const providerId = user.providerData[0]?.providerId;
-  let provider;
-  if (providerId === 'google.com') {
-    provider = new GoogleAuthProvider();
-  } else if (providerId === 'facebook.com') {
-    provider = new FacebookAuthProvider();
+
+  // Étape 1 : Réauthentification de l'utilisateur (sécurité)
+  if (providerId === 'password') {
+    if (!password) throw new Error("Le mot de passe est requis pour supprimer le compte.");
+    const credential = EmailAuthProvider.credential(user.email, password);
+    await reauthenticateWithCredential(user, credential);
+  } else if (providerId === 'google.com' || providerId === 'facebook.com') {
+    let provider;
+    if (providerId === 'google.com') provider = new GoogleAuthProvider();
+    if (providerId === 'facebook.com') provider = new FacebookAuthProvider();
+    await reauthenticateWithPopup(user, provider);
   } else {
-    throw new Error("La suppression pour ce fournisseur n'est pas prise en charge.");
+    throw new Error("Type de compte non pris en charge pour la suppression.");
   }
-  await reauthenticateWithPopup(user, provider);
+
+  // Étape 2 : Suppression des données de l'utilisateur (une fois réauthentifié)
   const userDocRef = doc(db, 'users', user.uid);
   await deleteDoc(userDocRef);
+
+  // Étape 3 : Suppression finale de l'utilisateur de Firebase Auth
   await deleteUser(user);
 }
 
